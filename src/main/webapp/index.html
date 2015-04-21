@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>  
+    <head>     
+        <title>Chat v.3.0</title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="resources/css/style.css"/>
+	</head>
+    
+    <body onload="run()"> 
+        <div class="header">
+            <div id="chatName">Chat v.3.0</div>
+        </div>
+        
+        <section class="main"> 
+            <div id="serverIndicator">Server status</div>   
+            <div class="chatWindow">
+                <div class="box" id="messageBox"></div>
+                
+                <div class="box hidden" id="hiddenMessageBox">You can`t read messages. Login, please.</div>
+                
+                <div class="box" id="userBox">
+                    <span id="username">
+                    </span>
+                </div>
+            
+                <div class="box hidden" id="hiddenUserBox">Login, please.</div>
+                
+                <div class="box" id="textBox" contenteditable="true"></div>
+                
+                <div class="box hidden" id="hiddenTextBox">You can`t write messages. Login, please.</div>
+                
+                <div class="loginBox">
+                    <button class="button" id="loginButton" type="button">Login</button>
+                    <button class="button" id="logoutButton" type="button">Logout</button>
+                    <button class="button" id="editLoginButton" type="button">Edit</button>
+                </div>
+                
+                <div class="buttonBox">
+                    <button class="button" id="sendButton" type="button">Send</button> 
+                </div>
+            </div>
+        </section>
+        
+        <div class="footer"></div>
+    
+        <div class="windowBackground" id="loginWindowBackground">
+            <div class="box" id="loginWindow">
+                <div id="loginWindowAlert">Enter your login, please.</div>
+                <div class="box" id="loginWindowInput" contenteditable="true"></div>
+                <button class="button" id="loginWindowButton" type="button">Login</button>
+                <button class="buttonNegative" id="dismissLoginWindowButton" type="button">Dismiss</button>
+            </div>
+        </div>
+		<script src="resources/js/scripts.js"></script>
+        <script src="resources/js/jquery-1.11.2.min.js"></script>
+		<script src="resources/js/jquery.color.js"></script>
+    </body>
+</html>
