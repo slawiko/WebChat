@@ -3,7 +3,6 @@ package chat.practice.model;
 import java.util.UUID;
 
 public class Message {
-
     private String id;
     private String author;
     private String text;
@@ -40,8 +39,7 @@ public class Message {
     }
 
     public String uniqueId() {
-        String id = UUID.randomUUID().toString();
-        return id;
+        return UUID.randomUUID().toString();
     }
 
     public String toString() {
