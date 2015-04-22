@@ -1,7 +1,6 @@
 package chat.practice.model;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -12,4 +11,20 @@ public class MessageStorage {
 		storage.add(message);
 	}
 
+	public static int getSize() {
+		return storage.size();
+	}
+
+	public static Message getMessageByIndex(int index) {
+		return storage.get(index);
+	}
+
+	public static Message getMessageById(String id) {
+		for (Message mess : storage) {
+			if (mess.getId().equals(id)) {
+				return mess;
+			}
+		}
+		return null;
+	}
 }
