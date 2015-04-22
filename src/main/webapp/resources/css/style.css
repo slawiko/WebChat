@@ -15,37 +15,7 @@ html, body {
     right: 0;
     bottom: 0;
     background: 0;
-    background: rgba(0, 0, 0, 0.65);
-
-
-
-
-
-    -webkit-filter: blur(5px);
-    -moz-filter: blur(5px);
-    -o-filter: blur(5px);
-    -ms-filter: blur(5px);
-    filter: blur(5px);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    background: -webkit-radial-gradient(rgba(120, 120, 120, 0.5), rgba(120, 120, 120, 0.5) 35%, rgba(0, 0, 0, 0.7));
 }
 
 .button {
@@ -114,19 +84,19 @@ html, body {
 }
 
 .editMessageButton {
-    top: 0px;
+    top: 0;
     left: 310px;
 }
 
 .deleteMessageButton {
-    top: 0px;
+    top: 0;
     left: 336px;
 }
 
 .message {
     display: block;
     position: relative;
-    left: 0px;
+    left: 0;
     padding-bottom: 3px;
     width: 360px;
     word-wrap: break-word;
@@ -317,7 +287,6 @@ html, body {
 }
 
 #loginWindow {
-    margin: auto;
     height: 140px;
     width: 350px;
     margin: -70px 0 0 -175px;
