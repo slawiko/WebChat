@@ -85,7 +85,7 @@ function onEditMessageButtonClick(eventObj) {
     var user = document.getElementById("username");
     
     if (user.innerHTML + ":&nbsp;" != eventObj.target.parentNode.childNodes[0].childNodes[0].innerHTML) {
-        alert("This is not your message.")
+        alert("This is not your model.");
         return;
     }
         
@@ -115,7 +115,7 @@ function onDeleteMessageButtonClick(eventObj) {
         user = document.getElementById("username");
     
     if (user.innerHTML + ":&nbsp;" != eventObj.target.parentNode.childNodes[0].childNodes[0].innerHTML) {
-        alert("This is not your message.")
+        alert("This is not your model.");
         return;
     }
 	
@@ -139,6 +139,7 @@ function onDeleteMessageButtonClick(eventObj) {
 
 function onLoginButtonClick() {
 	$("#loginWindowBackground").fadeIn(300);
+	//$("#loginWindow").draggable();
 }
 
 function onEditLoginButtonClick() {
@@ -261,9 +262,7 @@ function createMessage(username, textMessage) {
         user = document.createElement("span"),
         text = document.createElement("span"),
         editMessageButton = document.createElement("img"),
-        deleteMessageButton = document.createElement("img"),
-        contentUsername = document.createElement("span"),
-        contentMessage = document.createElement("span");
+        deleteMessageButton = document.createElement("img");
 
     user.innerHTML = username + ":&nbsp";
     text.innerHTML = textMessage;
@@ -381,5 +380,5 @@ function isError(text) {
 }
 
 function defaultErrorHandler(message) {
-	//alert(message);
+	//alert(model);
 }
