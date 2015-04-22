@@ -1,3 +1,5 @@
+package chat.practice.model;
+
 import java.util.UUID;
 
 public class Message {
