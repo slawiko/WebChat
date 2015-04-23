@@ -8,12 +8,12 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.io.IOException;
 
-import static practice.chat.util.MessageUtil.MESSAGES;
-import static practice.chat.util.MessageUtil.TOKEN;
 import static practice.chat.util.MessageUtil.getToken;
 
 public final class ServletUtil {
-	public static final String APPLICATION_JSON = "application/json";
+	public  static final String APPLICATION_JSON = "application/json";
+	public  static final String TOKEN = "token";
+	private static final String MESSAGES = "messages";
 
 	private ServletUtil() {
 	}

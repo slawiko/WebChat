@@ -27,4 +27,8 @@ public class MessageStorage {
 		}
 		return null;
 	}
+
+	public static List<Message> getSubMessageByIndex(int index) {
+		return storage.subList(index, storage.size());
+	}
 }
