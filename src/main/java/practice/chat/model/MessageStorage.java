@@ -1,4 +1,4 @@
-package chat.practice.model;
+package practice.chat.model;
 
 import java.util.ArrayList;
 import java.util.Collections;

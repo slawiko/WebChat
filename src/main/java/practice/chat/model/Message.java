@@ -1,4 +1,4 @@
-package chat.practice.model;
+package practice.chat.model;
 
 import java.util.UUID;
 
@@ -26,13 +26,6 @@ public class Message {
     }
 
     public Message(Message message) {
-        this.id = message.getId();
-        this.author = message.getAuthor();
-        this.text = message.getText();
-    }
-
-    public Message(Object o) {
-        Message message = (Message)o;
         this.id = message.getId();
         this.author = message.getAuthor();
         this.text = message.getText();
