@@ -13,6 +13,7 @@ import static practice.chat.util.MessageUtil.getIndex;
 import static practice.chat.util.MessageUtil.getToken;
 import static practice.chat.util.MessageUtil.stringToJson;
 import static practice.chat.util.ServletUtil.getServerResponse;
+import static practice.chat.util.ServletUtil.addDefaultData;
 import static practice.chat.util.ServletUtil.TOKEN;
 
 import practice.chat.model.Message;
@@ -28,6 +29,7 @@ public class ChatServlet extends HttpServlet {
 
 	@Override
 	public void init() throws ServletException {
+		addDefaultData();
 	}
 
 	@Override
