@@ -20,8 +20,20 @@ public class MessageStorage {
 		return storage.size();
 	}
 
+	public static int getIndexOfId(String id) {
+		for (int i = 0; i < storage.size(); i++) {
+			if (storage.get(i).getId().equals(id)) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
 	public static Message getMessageByIndex(int index) {
 		return storage.get(index);
+	}
+	public static void setMessageByIndex(int index, Message message) {
+		storage.set(index, message);
 	}
 
 	public static Message getMessageById(String id) {
@@ -31,6 +43,13 @@ public class MessageStorage {
 			}
 		}
 		return null;
+	}
+	public static void setMessageById(Message message) {
+		for (int i = 0; i < storage.size(); i++) {
+			if (storage.get(i).getId().equals(message.getId())) {
+				storage.set(i, message);
+			}
+		}
 	}
 
 	public static List<Message> getSubMessageByIndex(int index) {

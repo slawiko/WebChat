@@ -13,10 +13,10 @@ import static practice.chat.util.MessageUtil.*;
 import static practice.chat.util.ServletUtil.getServerResponse;
 import static practice.chat.util.ServletUtil.addDefaultData;
 import static practice.chat.util.ServletUtil.TOKEN;
+import static practice.chat.util.ServletUtil.DELETED;
 
 import practice.chat.model.Message;
 import practice.chat.model.MessageStorage;
-import practice.chat.util.MessageUtil;
 import practice.chat.util.ServletUtil;
 
 import org.json.simple.JSONObject;
@@ -80,6 +80,15 @@ public class ChatServlet extends HttpServlet {
 
 	@Override
 	protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
+		String data = ServletUtil.getMessageBody(request);
+		try {
+			JSONObject json = stringToJson(data);
+			Message message = jsonToMessage(json);
+			message.setAuthor(DELETED);
+			message.setText(DELETED);
+			MessageStorage.setMessageById(message);
+		} catch (ParseException e) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+		}
 	}
 }
