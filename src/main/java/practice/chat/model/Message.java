@@ -49,14 +49,14 @@ public class Message {
     public String getAuthor() {
         return this.author;
     }
-    public void setUsername(String author) {
+    public void setAuthor(String author) {
         this.author = author;
     }
 
     public String getText() {
         return this.text;
     }
-    public void setMessage(String text) {
+    public void setText(String text) {
         this.text = text;
     }
 }

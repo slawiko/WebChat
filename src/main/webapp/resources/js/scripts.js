@@ -85,7 +85,7 @@ function onEditMessageButtonClick(eventObj) {
     var user = document.getElementById("username");
     
     if (user.innerHTML + ":&nbsp;" != eventObj.target.parentNode.childNodes[0].childNodes[0].innerHTML) {
-        alert("This is not your model.");
+        alert("This is not your message.");
         return;
     }
         
@@ -139,7 +139,6 @@ function onDeleteMessageButtonClick(eventObj) {
 
 function onLoginButtonClick() {
 	$("#loginWindowBackground").fadeIn(300);
-	//$("#loginWindow").draggable();
 }
 
 function onEditLoginButtonClick() {
@@ -249,7 +248,7 @@ function addMessageInternal(message) {
 }
 
 function updateMessageList(newMessage, messageList_) {
-    messageList_.textMessage = newMessage;
+    messageList_.text = newMessage;
 	Put(appState.mainUrl, JSON.stringify(messageList_), function(){},	function(message) {
 																			defaultErrorHandler(message);
 																			//wait();

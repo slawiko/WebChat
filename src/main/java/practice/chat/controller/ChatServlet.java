@@ -61,7 +61,21 @@ public class ChatServlet extends HttpServlet {
 
 	@Override
 	protected void doPut(HttpServletRequest request, HttpServletResponse response) throws  ServletException, IOException {
-
+		String data = ServletUtil.getMessageBody(request);
+		try {
+			JSONObject json = stringToJson(data);
+			Message message = jsonToMessage(json);
+			String id = message.getId();
+			Message messageToUpdate = MessageStorage.getMessageById(id);
+			if (messageToUpdate != null) {
+				messageToUpdate.setText(message.getText());
+				response.setStatus(HttpServletResponse.SC_OK);
+			} else {
+				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Message does not exist");
+			}
+		} catch (ParseException e) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+		}
 	}
 
 	@Override
