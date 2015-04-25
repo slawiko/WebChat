@@ -9,9 +9,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import static practice.chat.util.MessageUtil.getIndex;
-import static practice.chat.util.MessageUtil.getToken;
-import static practice.chat.util.MessageUtil.stringToJson;
+import static practice.chat.util.MessageUtil.*;
 import static practice.chat.util.ServletUtil.getServerResponse;
 import static practice.chat.util.ServletUtil.addDefaultData;
 import static practice.chat.util.ServletUtil.TOKEN;
@@ -50,11 +48,24 @@ public class ChatServlet extends HttpServlet {
 
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws  ServletException, IOException {
-
+		String data = ServletUtil.getMessageBody(request);
+		try {
+			JSONObject json = stringToJson(data);
+			Message message = jsonToMessage(json);
+			MessageStorage.addMessage(message);
+			response.setStatus(HttpServletResponse.SC_OK);
+		} catch (ParseException e) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+		}
 	}
 
 	@Override
 	protected void doPut(HttpServletRequest request, HttpServletResponse response) throws  ServletException, IOException {
+
+	}
+
+	@Override
+	protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
 	}
 }

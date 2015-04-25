@@ -230,7 +230,7 @@ function hideAll() {
 }
 
 function addMessage(message, continueWith) {
-    if (!message.textMessage) {
+    if (!message.text) {
 		return;
 	}
     
