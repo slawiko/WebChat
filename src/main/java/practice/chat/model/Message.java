@@ -36,7 +36,7 @@ public class Message {
     }
 
     public String toString() {
-        return "{\"id\":\"" + this.id + "\",\"author\":\"" + this.author + "\",\"text\":" + "\"this.text\" }";
+        return "{\"id\":\"" + this.id + "\",\"author\":\"" + this.author + "\",\"text\":\"" + this.text + "\" }";
     }
 
     public String getId() {
