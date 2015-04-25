@@ -1,13 +1,13 @@
 "use strict";
 
-var messageStruct = function (text, user) {
+var messageStruct = function (author, text) {
                     return {
-                        textMessage: text,
-                        username: user,
-                        id: 0 };
+                        id: 0,
+						author: author,
+						text: text };
                     },
     appState      = {
-                    mainUrl : 'http://localhost:1555/chat',
+                    mainUrl : 'chat',
                     token : 'TN11EN' },
 	messageList   = [],
     editingMessage;
@@ -56,7 +56,7 @@ function delegateEvent(eventObj) {
 function onSendButtonClick(value) {
     var messageText = document.getElementById("textBox"), 
 		username = document.getElementById("username"),
-		message = messageStruct(messageText.innerText, username.innerText),
+		message = messageStruct(username.innerText, messageText.innerText),
         sendButton = document.getElementById("sendButton"),
         i;
 
@@ -180,7 +180,7 @@ function restoreFromServer() {
         		}, 	
 				function(message) {
 					defaultErrorHandler(message);
-					wait();
+					//wait();
 				});
 
 	setTimeout(function() {
@@ -236,12 +236,12 @@ function addMessage(message, continueWith) {
     
     Post(appState.mainUrl, JSON.stringify(message), function(){}, 	function(message) {
 																		defaultErrorHandler(message);
-																		wait();
+																		//wait();
 																	});
 }
     
 function addMessageInternal(message) {
-    var newMessage = createMessage(message.username, message.textMessage),
+    var newMessage = createMessage(message.author, message.text),
         messages = document.getElementById("messageBox");
 
     newMessage.id = message.id;
@@ -252,7 +252,7 @@ function updateMessageList(newMessage, messageList_) {
     messageList_.textMessage = newMessage;
 	Put(appState.mainUrl, JSON.stringify(messageList_), function(){},	function(message) {
 																			defaultErrorHandler(message);
-																			wait();
+																			//wait();
 																		});
 }
 
@@ -272,9 +272,9 @@ function createMessage(username, textMessage) {
     text.setAttribute("class", "text");
 
     editMessageButton.setAttribute  ("class", "editMessageButton icon");
-    editMessageButton.setAttribute  ("src", "css/resources/edit.png");
+    editMessageButton.setAttribute  ("src", "resources/css/edit.png");
     deleteMessageButton.setAttribute("class", "deleteMessageButton icon");
-    deleteMessageButton.setAttribute("src", "css/resources/trash.png");
+    deleteMessageButton.setAttribute("src", "resources/css/trash.png");
 
     message.appendChild(user);
     message.appendChild(text);
