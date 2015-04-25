@@ -1,7 +1,9 @@
 package practice.chat.util;
 
 import org.json.simple.JSONObject;
+
 import practice.chat.model.MessageStorage;
+import practice.chat.model.Message;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -33,5 +35,13 @@ public final class ServletUtil {
 		jsonObject.put(MESSAGES, MessageStorage.getSubMessageByIndex(index));
 		jsonObject.put(TOKEN, getToken(MessageStorage.getSize()));
 		return jsonObject.toJSONString();
+	}
+
+	public static void addDefaultData() {
+		Message[] defaultMessages = {
+			new Message("slawiko", "Hello! How are you"),
+			new Message("maz", "Hi, I'm find and you?"),
+			new Message("slawiko", "Me too")};
+		MessageStorage.addAll(defaultMessages);
 	}
 }
