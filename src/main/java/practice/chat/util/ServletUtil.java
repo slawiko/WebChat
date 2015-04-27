@@ -2,7 +2,7 @@ package practice.chat.util;
 
 import org.json.simple.JSONObject;
 
-import practice.chat.model.MessageStorage;
+import practice.chat.storage.MessageStorage;
 import practice.chat.model.Message;
 
 import javax.servlet.http.HttpServletRequest;

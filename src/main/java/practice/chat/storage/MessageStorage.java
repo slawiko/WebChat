@@ -1,4 +1,6 @@
-package practice.chat.model;
+package practice.chat.storage;
+
+import practice.chat.model.Message;
 
 import java.util.ArrayList;
 import java.util.Arrays;

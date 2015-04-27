@@ -16,7 +16,7 @@ import static practice.chat.util.ServletUtil.TOKEN;
 import static practice.chat.util.ServletUtil.DELETED;
 
 import practice.chat.model.Message;
-import practice.chat.model.MessageStorage;
+import practice.chat.storage.MessageStorage;
 import practice.chat.util.ServletUtil;
 
 import org.json.simple.JSONObject;
