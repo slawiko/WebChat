@@ -90,6 +90,48 @@ public final class XMLStorage {
 		transformer.transform(source, result);
 	}
 
+	public static synchronized void addAll(List<Message> messages) throws ParserConfigurationException, SAXException, IOException, TransformerException {
+
+		if (!isExist()) {
+			createStorage();
+		}
+		DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
+		Document document = documentBuilder.parse(STORAGE_LOCATION);
+		document.getDocumentElement().normalize();
+
+		Element root = document.getDocumentElement();
+
+		for (Message message : messages) {
+
+			Element messageElement = document.createElement(MESSAGE);
+			root.appendChild(messageElement);
+
+			messageElement.setAttribute(ID, message.getId());
+
+			Element user = document.createElement(AUTHOR);
+			user.appendChild(document.createTextNode(message.getAuthor()));
+			messageElement.appendChild(user);
+
+			Element text = document.createElement(TEXT);
+			text.appendChild(document.createTextNode(message.getText()));
+			messageElement.appendChild(text);
+
+			Element date = document.createElement(DATE);
+			date.appendChild(document.createTextNode(message.getDate()));
+			messageElement.appendChild(date);
+
+			DOMSource source = new DOMSource(document);
+
+			Transformer transformer = getTransformer();
+
+			StreamResult result = new StreamResult(STORAGE_LOCATION);
+			transformer.transform(source, result);
+		}
+
+
+	}
+
 	public static synchronized void updateData(Message message) throws ParserConfigurationException, SAXException, IOException, TransformerException, XPathExpressionException {
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
