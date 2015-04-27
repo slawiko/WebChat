@@ -8,9 +8,11 @@ import org.json.simple.parser.ParseException;
 public final class MessageUtil {
 	private static final String TN = "TN";
 	private static final String EN = "EN";
-	private static final String ID = "id";
-	private static final String AUTHOR = "author";
-	private static final String TEXT = "text";
+	public static final String ID = "id";
+	public static final String AUTHOR = "author";
+	public static final String TEXT = "text";
+	public static final String DATE = "date";
+	public static final String DATE_FORMAT = "dd-mm-yyyy HH:mm";
 
 	public static String getToken(int index) {
 		Integer number = index * 8 + 11;
