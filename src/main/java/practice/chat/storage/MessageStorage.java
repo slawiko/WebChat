@@ -14,8 +14,8 @@ public class MessageStorage {
 		storage.add(message);
 	}
 
-	public static void addAll(Message [] messages) {
-		storage.addAll(Arrays.asList(messages));
+	public static void addAll(List<Message> messages) {
+		storage.addAll(messages);
 	}
 
 	public static int getSize() {
@@ -54,7 +54,7 @@ public class MessageStorage {
 		}
 	}
 
-	public static List<Message> getSubMessageByIndex(int index) {
+	public static List<Message> getSubMessagesByIndex(int index) {
 		return storage.subList(index, storage.size());
 	}
 }
