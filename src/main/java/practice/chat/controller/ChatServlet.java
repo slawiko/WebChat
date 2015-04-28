@@ -10,20 +10,23 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
+import javax.xml.xpath.XPathExpressionException;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
 
 import static practice.chat.util.MessageUtil.*;
-import static practice.chat.util.ServletUtil.getServerResponse;
 import static practice.chat.util.ServletUtil.TOKEN;
 import static practice.chat.util.ServletUtil.DELETED;
+import static practice.chat.util.ServletUtil.POST;
+import static practice.chat.util.ServletUtil.DELETE;
+import static practice.chat.util.ServletUtil.PUT;
+import static practice.chat.util.ServletUtil.GET;
 import static practice.chat.util.ServletUtil.loadHistory;
-import static practice.chat.util.ServletUtil.formResponse;
+import static practice.chat.util.ServletUtil.getServerResponse;
 
 import org.xml.sax.SAXException;
 import practice.chat.model.Message;
-import practice.chat.storage.MessageStorage;
 import practice.chat.storage.XMLStorage;
 import practice.chat.util.ServletUtil;
 
@@ -48,18 +51,18 @@ public class ChatServlet extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String token = request.getParameter(TOKEN);
-
 		if (token != null && !"".equals(token)) {
 			int index = getIndex(token);
 			String messages = null;
 			try {
-				messages = formResponse(index);
+				messages = getServerResponse(index);
 			} catch (ParserConfigurationException e) {
 				e.printStackTrace();
 			} catch (SAXException e) {
 				e.printStackTrace();
+			} catch (XPathExpressionException e) {
+				e.printStackTrace();
 			}
-			//String messages = getServerResponse(index);
 			response.setContentType(ServletUtil.APPLICATION_JSON);
 			response.setCharacterEncoding("UTF-8");
 			PrintWriter out = response.getWriter();
@@ -76,9 +79,8 @@ public class ChatServlet extends HttpServlet {
 		try {
 			JSONObject json = stringToJson(data);
 			Message message = jsonToMessage(json);
-			System.out.println("Принято новое сообщение: " + message.getDate() + " [" + message.getAuthor() + "] : " + message.getText());
-			XMLStorage.addData(message);
-			//MessageStorage.addMessage(message);
+			System.out.println(": " + message.getDate() + " [" + message.getAuthor() + "] : " + message.getText());
+			XMLStorage.addData(message, POST);
 			response.setStatus(HttpServletResponse.SC_OK);
 		} catch (ParseException e) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
@@ -90,7 +92,7 @@ public class ChatServlet extends HttpServlet {
 			e.printStackTrace();
 		}
 	}
-
+/*
 	@Override
 	protected void doPut(HttpServletRequest request, HttpServletResponse response) throws  ServletException, IOException {
 		String data = ServletUtil.getMessageBody(request);
@@ -123,4 +125,5 @@ public class ChatServlet extends HttpServlet {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 		}
 	}
+	*/
 }
