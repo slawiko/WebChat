@@ -17,11 +17,9 @@ import org.json.simple.parser.ParseException;
 
 import static practice.chat.util.MessageUtil.*;
 import static practice.chat.util.ServletUtil.TOKEN;
-import static practice.chat.util.ServletUtil.DELETED;
 import static practice.chat.util.ServletUtil.POST;
 import static practice.chat.util.ServletUtil.DELETE;
 import static practice.chat.util.ServletUtil.PUT;
-import static practice.chat.util.ServletUtil.GET;
 import static practice.chat.util.ServletUtil.loadHistory;
 import static practice.chat.util.ServletUtil.getServerResponse;
 
@@ -78,8 +76,9 @@ public class ChatServlet extends HttpServlet {
 		String data = ServletUtil.getMessageBody(request);
 		try {
 			JSONObject json = stringToJson(data);
-			Message message = jsonToMessage(json);
-			System.out.println(": " + message.getDate() + " [" + message.getAuthor() + "] : " + message.getText());
+			Message temp = jsonToMessage(json);
+			Message message = new Message(temp.getAuthor(), temp.getText());
+			System.out.println("Post message: " + message.getDate() + " {" + message.getAuthor() + "} : {" + message.getText() + "}");
 			XMLStorage.addData(message, POST);
 			response.setStatus(HttpServletResponse.SC_OK);
 		} catch (ParseException e) {
@@ -92,25 +91,36 @@ public class ChatServlet extends HttpServlet {
 			e.printStackTrace();
 		}
 	}
-/*
-	@Override
+
+	/*@Override
 	protected void doPut(HttpServletRequest request, HttpServletResponse response) throws  ServletException, IOException {
 		String data = ServletUtil.getMessageBody(request);
 		try {
 			JSONObject json = stringToJson(data);
 			Message message = jsonToMessage(json);
 			String id = message.getId();
-			Message messageToUpdate = MessageStorage.getMessageById(id);
+			Message messageToUpdate = XMLStorage.getMessageById(id);
 			if (messageToUpdate != null) {
+				System.out.println("Old message: " + messageToUpdate.getDate() + " {" + messageToUpdate.getAuthor() + "} : {" + messageToUpdate.getText() + "}");
 				messageToUpdate.setText(message.getText());
+				System.out.println("New message: " + messageToUpdate.getDate() + " {" + messageToUpdate.getAuthor() + "} : {" + messageToUpdate.getText() + "}");
+				XMLStorage.addData(messageToUpdate, PUT);
 				response.setStatus(HttpServletResponse.SC_OK);
 			} else {
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Message does not exist");
 			}
 		} catch (ParseException e) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+		} catch (SAXException e) {
+			e.printStackTrace();
+		} catch (ParserConfigurationException e) {
+			e.printStackTrace();
+		} catch (XPathExpressionException e) {
+			e.printStackTrace();
+		} catch (TransformerException e) {
+			e.printStackTrace();
 		}
-	}
+	}*/
 
 	@Override
 	protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -118,12 +128,16 @@ public class ChatServlet extends HttpServlet {
 		try {
 			JSONObject json = stringToJson(data);
 			Message message = jsonToMessage(json);
-			message.setAuthor(DELETED);
-			message.setText(DELETED);
-			MessageStorage.setMessageById(message);
+			System.out.println("Delete message: " + message.getDate() + " {" + message.getAuthor() + "} : {" + message.getText() + "}");
+			XMLStorage.addData(message, DELETE);
 		} catch (ParseException e) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+		} catch (ParserConfigurationException e) {
+			e.printStackTrace();
+		} catch (SAXException e) {
+			e.printStackTrace();
+		} catch (TransformerException e) {
+			e.printStackTrace();
 		}
 	}
-	*/
 }

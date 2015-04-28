@@ -1,9 +1,12 @@
 package practice.chat.util;
 
+import org.w3c.dom.NodeList;
 import practice.chat.model.Message;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+
+import javax.xml.soap.Node;
 
 public final class MessageUtil {
 	private static final String TN = "TN";
@@ -33,5 +36,21 @@ public final class MessageUtil {
 		Object author = json.get(AUTHOR);
 		Object text = json.get(TEXT);
 		return new Message(id.toString(), author.toString(), text.toString());
+	}
+
+	public static Message nodeToMessage(Node node) {
+		NodeList childNodes = node.getChildNodes();
+		Message message = null;
+		message.setId(node.getAttributes().toString());
+		for (int i = 0; i < childNodes.getLength(); i++) {
+			if (AUTHOR.equals(childNodes.item(i).getNodeName())) {
+				message.setAuthor(childNodes.item(i).getTextContent());
+			}else if (TEXT.equals(childNodes.item(i).getNodeName())) {
+				message.setText(childNodes.item(i).getTextContent());
+			}else if (DATE.equals(childNodes.item(i).getNodeName())) {
+				message.setDate(childNodes.item(i).getTextContent());
+			}
+		}
+		return message;
 	}
 }
