@@ -1,6 +1,7 @@
 package practice.chat.storage;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,22 +30,21 @@ import org.xml.sax.SAXException;
 
 import practice.chat.model.Message;
 
-import static practice.chat.util.MessageUtil.ID;
-import static practice.chat.util.MessageUtil.AUTHOR;
-import static practice.chat.util.MessageUtil.TEXT;
-import static practice.chat.util.MessageUtil.DATE;
+import static practice.chat.util.MessageUtil.*;
 
 public final class XMLStorage {
 	private static final String STORAGE_LOCATION = System.getProperty("user.home") +  File.separator + "history.xml";
+	private static final String METHOD = "method";
 	private static final String MESSAGES = "messages";
 	private static final String MESSAGE = "message";
+	private static final String EXPRESSION_MESSAGE = "/messages/message";
 
 	private XMLStorage() {
 	}
 
 	public static synchronized void createStorage() throws ParserConfigurationException, TransformerException {
-		DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-		DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+		DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder docBuilder = builderFactory.newDocumentBuilder();
 
 		Document doc = docBuilder.newDocument();
 		Element rootElement = doc.createElement(MESSAGES);
@@ -57,7 +57,7 @@ public final class XMLStorage {
 		transformer.transform(source, result);
 	}
 
-	public static synchronized void addData(Message message) throws ParserConfigurationException, SAXException, IOException, TransformerException {
+	public static synchronized void addData(Message message, String method) throws ParserConfigurationException, SAXException, IOException, TransformerException {
 		DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
 		Document document = documentBuilder.parse(STORAGE_LOCATION);
@@ -70,9 +70,9 @@ public final class XMLStorage {
 
 		messageElement.setAttribute(ID, message.getId());
 
-		Element user = document.createElement(AUTHOR);
-		user.appendChild(document.createTextNode(message.getAuthor()));
-		messageElement.appendChild(user);
+		Element author = document.createElement(AUTHOR);
+		author.appendChild(document.createTextNode(message.getAuthor()));
+		messageElement.appendChild(author);
 
 		Element text = document.createElement(TEXT);
 		text.appendChild(document.createTextNode(message.getText()));
@@ -82,15 +82,18 @@ public final class XMLStorage {
 		date.appendChild(document.createTextNode(message.getDate()));
 		messageElement.appendChild(date);
 
-		DOMSource source = new DOMSource(document);
+		Element methodElement = document.createElement(METHOD);
+		methodElement.appendChild(document.createTextNode(method));
+		messageElement.appendChild(methodElement);
 
+		DOMSource source = new DOMSource(document);
 		Transformer transformer = getTransformer();
 
 		StreamResult result = new StreamResult(STORAGE_LOCATION);
 		transformer.transform(source, result);
 	}
 
-	public static synchronized void addAll(List<Message> messages) throws ParserConfigurationException, SAXException, IOException, TransformerException {
+	/*public static synchronized void addAll(List<Message> messages) throws ParserConfigurationException, SAXException, IOException, TransformerException {
 
 		if (!isExist()) {
 			createStorage();
@@ -128,10 +131,8 @@ public final class XMLStorage {
 			StreamResult result = new StreamResult(STORAGE_LOCATION);
 			transformer.transform(source, result);
 		}
-
-
-	}
-
+	}*/
+//unchecked
 	public static synchronized void updateData(Message message) throws ParserConfigurationException, SAXException, IOException, TransformerException, XPathExpressionException {
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
@@ -184,7 +185,7 @@ public final class XMLStorage {
 		return file.exists();
 	}
 
-	public static synchronized List<Message> getMessages() throws SAXException, IOException, ParserConfigurationException {
+	public static synchronized List<Message> getListMessages() throws SAXException, IOException, ParserConfigurationException {
 		List<Message> messages = new ArrayList<Message>();
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
@@ -203,6 +204,29 @@ public final class XMLStorage {
 		return messages;
 	}
 
+	private static synchronized List<Message> getListMessages(NodeList nodeList) {
+		List<Message> messages = new ArrayList<Message>();
+		for (int i = 0; i < nodeList.getLength(); i++) {
+			Element messageElement = (Element) nodeList.item(i);
+			String id = messageElement.getAttribute(ID);
+			String author = messageElement.getElementsByTagName(AUTHOR).item(0).getTextContent();
+			String text = messageElement.getElementsByTagName(TEXT).item(0).getTextContent();
+			String date = messageElement.getElementsByTagName(DATE).item(0).getTextContent();
+			messages.add(new Message(id, author, text, date));
+		}
+		return messages;
+	}
+
+	public static synchronized List<Message> getSubNodeList(int index) throws IOException, ParserConfigurationException, SAXException, XPathExpressionException {
+		DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder builder = builderFactory.newDocumentBuilder();
+		Document document = builder.parse(new FileInputStream(STORAGE_LOCATION));
+		XPath xpath = XPathFactory.newInstance().newXPath();
+
+		String expression = EXPRESSION_MESSAGE + "[position() >= " + index + "]";
+		return getListMessages((NodeList) xpath.compile(expression).evaluate(document, XPathConstants.NODESET));
+	}
+
 	public static synchronized int getStorageSize() throws SAXException, IOException, ParserConfigurationException {
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
@@ -214,7 +238,8 @@ public final class XMLStorage {
 
 	private static Node getNodeById(Document doc, String id) throws XPathExpressionException {
 		XPath xpath = XPathFactory.newInstance().newXPath();
-		XPathExpression expr = xpath.compile("//" + MESSAGE + "[@id='" + id + "']");
+		String expression = "//" + MESSAGE + "[@id='" + id + "']";
+		XPathExpression expr = xpath.compile(expression);
 		return (Node) expr.evaluate(doc, XPathConstants.NODE);
 	}
 
