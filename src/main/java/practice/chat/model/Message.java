@@ -26,14 +26,14 @@ public class Message {
         this.id = id;
         this.text = text;
         this.author = author;
-        this.date = setDate();
+        this.date = takeDate();
     }
 
     public Message(String author, String text) {
         this.id = uniqueId();
         this.text = text;
         this.author = author;
-        this.date = setDate();
+        this.date = takeDate();
     }
 
     public Message(Message message) {
@@ -45,6 +45,11 @@ public class Message {
 
     private String uniqueId() {
         return UUID.randomUUID().toString();
+    }
+    private String takeDate() {
+        Date date = new Date();
+        SimpleDateFormat format = new SimpleDateFormat(DATE_FORMAT);
+        return format.format(date);
     }
 
     public String toString() {
@@ -74,10 +79,5 @@ public class Message {
 
     public String getDate() {
         return this.date;
-    }
-    private String setDate() {
-        Date date = new Date();
-        SimpleDateFormat format = new SimpleDateFormat(DATE_FORMAT);
-        return format.format(date);
     }
 }
