@@ -223,7 +223,7 @@ public final class XMLStorage {
 		Document document = builder.parse(new FileInputStream(STORAGE_LOCATION));
 		XPath xpath = XPathFactory.newInstance().newXPath();
 
-		String expression = EXPRESSION_MESSAGE + "[position() >= " + index + "]";
+		String expression = EXPRESSION_MESSAGE + "[position() > " + index + "]";
 		return getListMessages((NodeList) xpath.compile(expression).evaluate(document, XPathConstants.NODESET));
 	}
 
