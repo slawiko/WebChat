@@ -9,7 +9,6 @@ import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.soap.Node;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
@@ -17,14 +16,12 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
+import javax.xml.xpath.*;
+
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
@@ -37,7 +34,7 @@ public final class XMLStorage {
 	private static final String METHOD = "method";
 	private static final String MESSAGES = "messages";
 	private static final String MESSAGE = "message";
-	private static final String EXPRESSION_MESSAGE = "//message";
+	private static final String EXPRESSION_MESSAGE = "/messages/message";
 
 	private XMLStorage() {
 	}
@@ -135,9 +132,9 @@ public final class XMLStorage {
 		DocumentBuilder builder = builderFactory.newDocumentBuilder();
 		Document document = builder.parse(new FileInputStream(STORAGE_LOCATION));
 		XPath xpath = XPathFactory.newInstance().newXPath();
-
 		String expression = EXPRESSION_MESSAGE + "[position() > " + index + "]";
-		return getListMessages((NodeList) xpath.compile(expression).evaluate(document, XPathConstants.NODESET));
+		NodeList nodeList = (NodeList) xpath.compile(expression).evaluate(document, XPathConstants.NODESET);
+		return getListMessages(nodeList);
 	}
 
 	public static synchronized int getStorageSize() throws SAXException, IOException, ParserConfigurationException {
@@ -149,19 +146,20 @@ public final class XMLStorage {
 		return root.getElementsByTagName(MESSAGE).getLength();
 	}
 
-	private static synchronized Node getNodeById(String id) throws XPathExpressionException, IOException, SAXException, ParserConfigurationException {
+	private static synchronized Node getNodeById(Document document, String id) throws XPathExpressionException, IOException, SAXException, ParserConfigurationException {
+		XPath xpath = XPathFactory.newInstance().newXPath();
+		String expression = "//" + MESSAGE + "[@id='" + id + "']";
+		XPathExpression expr = xpath.compile(expression);
+		Node node = (Node) expr.evaluate(document,  XPathConstants.NODE);
+		return node;
+	}
+
+	public static Message getMessageById(String id) throws SAXException, ParserConfigurationException, XPathExpressionException, IOException {
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
 		Document document = documentBuilder.parse(STORAGE_LOCATION);
 		document.getDocumentElement().normalize();
-
-		XPath xpath = XPathFactory.newInstance().newXPath();
-		XPathExpression expr = xpath.compile(EXPRESSION_MESSAGE + "[@id='" + id + "']");
-		return (Node) expr.evaluate(document, XPathConstants.NODE);
-	}
-
-	public static Message getMessageById(String id) throws SAXException, ParserConfigurationException, XPathExpressionException, IOException {
-		Node node = getNodeById(id);
+		Node node = getNodeById(document, id);
 		return nodeToMessage(node);
 	}
 

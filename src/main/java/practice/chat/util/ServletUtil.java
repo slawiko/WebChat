@@ -15,11 +15,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.List;
 
-import static practice.chat.util.MessageUtil.ID;
-import static practice.chat.util.MessageUtil.AUTHOR;
-import static practice.chat.util.MessageUtil.TEXT;
-import static practice.chat.util.MessageUtil.DATE;
-
 import static practice.chat.util.MessageUtil.getToken;
 
 public final class ServletUtil {

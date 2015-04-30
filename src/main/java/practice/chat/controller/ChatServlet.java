@@ -16,12 +16,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
 
 import static practice.chat.util.MessageUtil.*;
-import static practice.chat.util.ServletUtil.TOKEN;
-import static practice.chat.util.ServletUtil.POST;
-import static practice.chat.util.ServletUtil.DELETE;
-import static practice.chat.util.ServletUtil.PUT;
-import static practice.chat.util.ServletUtil.loadHistory;
-import static practice.chat.util.ServletUtil.getServerResponse;
+import static practice.chat.util.ServletUtil.*;
 
 import org.xml.sax.SAXException;
 import practice.chat.model.Message;
@@ -92,7 +87,7 @@ public class ChatServlet extends HttpServlet {
 		}
 	}
 
-	/*@Override
+	@Override
 	protected void doPut(HttpServletRequest request, HttpServletResponse response) throws  ServletException, IOException {
 		String data = ServletUtil.getMessageBody(request);
 		try {
@@ -120,7 +115,7 @@ public class ChatServlet extends HttpServlet {
 		} catch (TransformerException e) {
 			e.printStackTrace();
 		}
-	}*/
+	}
 
 	@Override
 	protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
