@@ -162,8 +162,8 @@ html, body {
     text-align: center;
     height: 30px;
     line-height: 30px;
-    color: #ffc2c2;
-    background-color: #b95c58;
+    color: #fff6c2;
+    background-color: #b9b958;
 }
 
 #chatName {
@@ -311,12 +311,13 @@ html, body {
     margin-left: 30px;
     overflow: auto;
     outline: 0;
+    white-space: pre-line;
     background-color: #F2F2F2;
 }
 
 .footer {
     display: block;
-    height: 86px;
+    height: 106px;
     width: 100%;
     background-image: url(images/footer_background.png);
 }

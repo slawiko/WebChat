@@ -1,6 +1,7 @@
 package practice.chat.util;
 
 import practice.chat.model.Message;
+
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
