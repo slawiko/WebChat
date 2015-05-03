@@ -21,6 +21,7 @@ import javax.xml.xpath.*;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
@@ -30,7 +31,6 @@ import static practice.chat.util.MessageUtil.*;
 
 public final class XMLStorage {
 	private static final String STORAGE_LOCATION = System.getProperty("user.home") +  File.separator + "history.xml";
-	private static final String METHOD = "method";
 	private static final String MESSAGES = "messages";
 	private static final String MESSAGE = "message";
 	private static final String EXPRESSION_MESSAGE = "/messages/message";
@@ -53,7 +53,7 @@ public final class XMLStorage {
 		transformer.transform(source, result);
 	}
 
-	public static synchronized void addData(Message message, String method) throws ParserConfigurationException, SAXException, IOException, TransformerException {
+	public static synchronized void addData(Message message) throws ParserConfigurationException, SAXException, IOException, TransformerException {
 		DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
 		Document document = documentBuilder.parse(STORAGE_LOCATION);
@@ -78,15 +78,56 @@ public final class XMLStorage {
 		date.appendChild(document.createTextNode(message.getDate()));
 		messageElement.appendChild(date);
 
-		Element methodElement = document.createElement(METHOD);
-		methodElement.appendChild(document.createTextNode(method));
-		messageElement.appendChild(methodElement);
-
 		DOMSource source = new DOMSource(document);
 		Transformer transformer = getTransformer();
 
 		StreamResult result = new StreamResult(STORAGE_LOCATION);
 		transformer.transform(source, result);
+	}
+
+	public static synchronized void removeData(Message message) throws IOException, SAXException, ParserConfigurationException, XPathExpressionException, TransformerException {
+		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+		Document document = documentBuilder.parse(STORAGE_LOCATION);
+		document.getDocumentElement().normalize();
+
+		NodeList root = document.getElementsByTagName(MESSAGES);
+		Node messageToDelete = getNodeById(document, message.getId());
+		if (messageToDelete != null) {
+			root.item(0).removeChild(messageToDelete);
+
+			Transformer transformer = getTransformer();
+
+			DOMSource source = new DOMSource(document);
+			StreamResult result = new StreamResult(new File(STORAGE_LOCATION));
+			transformer.transform(source, result);
+		} else {
+			throw new NullPointerException();
+		}
+	}
+
+	public static synchronized void updateData(Message message) throws ParserConfigurationException, SAXException, IOException, TransformerException, XPathExpressionException {
+		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+		Document document = documentBuilder.parse(STORAGE_LOCATION);
+		document.getDocumentElement().normalize();
+		Node messageToUpdate = getNodeById(document, message.getId());
+
+		if (messageToUpdate != null) {
+			NodeList childNodes = messageToUpdate.getChildNodes();
+			for (int i = 0; i < childNodes.getLength(); i++) {
+				Node node = childNodes.item(i);
+				if (TEXT.equals(node.getNodeName())) {
+					node.setTextContent(message.getText());
+				}
+			}
+			Transformer transformer = getTransformer();
+			DOMSource source = new DOMSource(document);
+			StreamResult result = new StreamResult(new File(STORAGE_LOCATION));
+			transformer.transform(source, result);
+		} else {
+			throw new NullPointerException();
+		}
 	}
 
 	public static synchronized boolean isExist() {
@@ -145,19 +186,10 @@ public final class XMLStorage {
 		return root.getElementsByTagName(MESSAGE).getLength();
 	}
 
-	private static synchronized NodeList getNodeById(Document document, String id) throws XPathExpressionException, IOException, SAXException, ParserConfigurationException {
+	private static Node getNodeById(Document doc, String id) throws XPathExpressionException {
 		XPath xpath = XPathFactory.newInstance().newXPath();
-		String expression = "//" + MESSAGE + "[@id='" + id + "']/*";
-		XPathExpression expr = xpath.compile(expression);
-		return (NodeList) expr.evaluate(document,  XPathConstants.NODESET);
-	}
-
-	public static synchronized Message getMessageById(String id) throws SAXException, ParserConfigurationException, XPathExpressionException, IOException {
-		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-		DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-		Document document = documentBuilder.parse(STORAGE_LOCATION);
-		document.getDocumentElement().normalize();
-		return nodeToMessage(getNodeById(document, id), id);
+		XPathExpression expr = xpath.compile("//" + MESSAGE + "[@id='" + id + "']");
+		return (Node) expr.evaluate(doc, XPathConstants.NODE);
 	}
 
 	private static synchronized Transformer getTransformer() throws TransformerConfigurationException {
@@ -166,4 +198,6 @@ public final class XMLStorage {
 		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 		return transformer;
 	}
+
+
 }

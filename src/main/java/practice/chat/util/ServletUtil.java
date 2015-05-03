@@ -20,9 +20,6 @@ import static practice.chat.util.MessageUtil.getToken;
 public final class ServletUtil {
 	public static final String APPLICATION_JSON = "application/json";
 	public static final String TOKEN = "token";
-	public static final String POST = "post";
-	public static final String DELETE = "delete";
-	public static final String PUT = "put";
 	private static final String MESSAGES = "messages";
 
 	private ServletUtil() {

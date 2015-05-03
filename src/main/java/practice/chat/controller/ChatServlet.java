@@ -74,7 +74,7 @@ public class ChatServlet extends HttpServlet {
 			Message temp = jsonToMessage(json);
 			Message message = new Message(temp.getAuthor(), temp.getText());
 			System.out.println("Post message: " + message.getDate() + " {" + message.getAuthor() + "} : {" + message.getText() + "}");
-			XMLStorage.addData(message, POST);
+			XMLStorage.addData(message);
 			response.setStatus(HttpServletResponse.SC_OK);
 		} catch (ParseException e) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
@@ -93,13 +93,8 @@ public class ChatServlet extends HttpServlet {
 		try {
 			JSONObject json = stringToJson(data);
 			Message message = jsonToMessage(json);
-			String id = message.getId();
-			Message messageToUpdate = XMLStorage.getMessageById(id);
-			if (messageToUpdate != null) {
-				System.out.println("Old message: " + messageToUpdate.getDate() + " {" + messageToUpdate.getAuthor() + "} : {" + messageToUpdate.getText() + "}");
-				messageToUpdate.setText(message.getText());
-				System.out.println("New message: " + messageToUpdate.getDate() + " {" + messageToUpdate.getAuthor() + "} : {" + messageToUpdate.getText() + "}");
-				XMLStorage.addData(messageToUpdate, PUT);
+			if (message != null) {
+				XMLStorage.updateData(message);
 				response.setStatus(HttpServletResponse.SC_OK);
 			} else {
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Message does not exist");
@@ -124,7 +119,7 @@ public class ChatServlet extends HttpServlet {
 			JSONObject json = stringToJson(data);
 			Message message = jsonToMessage(json);
 			System.out.println("Delete message: " + message.getDate() + " {" + message.getAuthor() + "} : {" + message.getText() + "}");
-			XMLStorage.addData(message, DELETE);
+			XMLStorage.removeData(message);
 		} catch (ParseException e) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 		} catch (ParserConfigurationException e) {
@@ -132,6 +127,8 @@ public class ChatServlet extends HttpServlet {
 		} catch (SAXException e) {
 			e.printStackTrace();
 		} catch (TransformerException e) {
+			e.printStackTrace();
+		} catch (XPathExpressionException e) {
 			e.printStackTrace();
 		}
 	}

@@ -12,9 +12,6 @@ public class Message {
     private String text;
     private String date;
 
-    private Message() {
-    }
-
     public Message(String id, String author, String text, String date) {
         this.id = id;
         this.author = author;
@@ -46,6 +43,7 @@ public class Message {
     private String uniqueId() {
         return UUID.randomUUID().toString();
     }
+
     private String takeDate() {
         Date date = new Date();
         SimpleDateFormat format = new SimpleDateFormat(DATE_FORMAT);
@@ -53,19 +51,17 @@ public class Message {
     }
 
     public String toString() {
-        return "{\"id\":\"" + this.id + "\",\"author\":\"" + this.author + "\",\"text\":\"" + this.text + "\" }";
+        return "{\"id\":\"" + this.id + "\",\"author\":\"" + this.author + "\",\"text\":\"" + this.text + "\",\"date\":\"" + this.date + "\"}";
     }
 
     public String getId() {
         return this.id;
     }
-    public void setId(String id) {
-        this.id = id;
-    }
 
     public String getAuthor() {
         return this.author;
     }
+
     public void setAuthor(String author) {
         this.author = author;
     }
@@ -73,6 +69,7 @@ public class Message {
     public String getText() {
         return this.text;
     }
+
     public void setText(String text) {
         this.text = text;
     }
@@ -80,6 +77,7 @@ public class Message {
     public String getDate() {
         return this.date;
     }
+
     public void setDate(String date) {
         this.date = date;
     }

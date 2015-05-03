@@ -1,8 +1,5 @@
 package practice.chat.util;
 
-import org.w3c.dom.NodeList;
-import org.w3c.dom.Node;
-
 import practice.chat.model.Message;
 
 import org.json.simple.JSONObject;
@@ -37,25 +34,5 @@ public final class MessageUtil {
 		Object author = json.get(AUTHOR);
 		Object text = json.get(TEXT);
 		return new Message(id.toString(), author.toString(), text.toString());
-	}
-
-	public static Message nodeToMessage(NodeList nodes, String id) {
-		String author = null;
-		String text = null;
-		String date = null;
-		for (int i = 0; i < nodes.getLength(); i++) {
-			Node node = nodes.item(i);
-			String nodeName = node.getNodeName();
-			String nodeValue = node.getFirstChild().getNodeValue();
-
-			if (nodeName.equals(AUTHOR)) {
-				author = nodeValue;
-			} else if (nodeName.equals(TEXT)) {
-				text = nodeValue;
-			} else if (nodeName.equals(DATE)) {
-				date = nodeValue;
-			}
-		}
-		return new Message(id, author, text, date);
 	}
 }
