@@ -8,14 +8,14 @@ var messageStruct = function (author, text) {
                     },
     appState      = {
                     mainUrl : 'chat',
-                    token : 'TN11EN' },
+                    token : 'TN11EN',
+                    version : 0 },
 	messageList   = [],
     editingMessage;
 
 function run() {
     var chatWindow = document.getElementsByClassName("chatWindow")[0],
         loginWindow = document.getElementById("loginWindow");
-	
     chatWindow.addEventListener("click", delegateEvent);
     chatWindow.addEventListener("keydown", delegateEvent);
 	loginWindow.addEventListener("click", delegateEvent);
@@ -59,16 +59,13 @@ function onSendButtonClick(value) {
 		message = messageStruct(username.innerText, messageText.innerText),
         sendButton = document.getElementById("sendButton"),
         i;
-
     if (sendButton.innerHTML == "Send") {
         addMessage(message);
         messageText.innerHTML = "";
         return;
-    }
-    else {
+    } else {
         var id = editingMessage.attributes["id"].value,
 			message;
-        
         for (i = 0; i < messageList.length; i++) {
             if (messageList[i].id === id) {
                 editingMessage.childNodes[0].childNodes[1].innerHTML = messageText.innerHTML;
@@ -83,7 +80,6 @@ function onSendButtonClick(value) {
 
 function onEditMessageButtonClick(eventObj) {
     var user = document.getElementById("username");
-    
     if (user.innerHTML + ":&nbsp;" != eventObj.target.parentNode.childNodes[0].childNodes[0].innerHTML) {
         alert("This is not your message.");
         return;
@@ -95,7 +91,6 @@ function onEditMessageButtonClick(eventObj) {
 		editButton = document.getElementById("sendButton"),
 		messageArea = document.getElementById("textBox"),
         i;
-	
     for (i = 0; i < messageList.length; i++) {
         if (messageList[i].id === id) {
             editingMessage = parentMessage;
@@ -113,18 +108,14 @@ function onDeleteMessageButtonClick(eventObj) {
         i,
 		sendButton = document.getElementById("sendButton"),
         user = document.getElementById("username");
-    
     if (user.innerHTML + ":&nbsp;" != eventObj.target.parentNode.childNodes[0].childNodes[0].innerHTML) {
-        alert("This is not your model.");
+        alert("This is not your message.");
         return;
     }
-	
 	if (sendButton.innerHTML == "Edit") {
 		return;
 	}
-    
     messageBox.removeChild(parentMessage);
-    
     for (i = 0; i < messageList.length; i++) {
         if (messageList[i].id === id) {
 			Delete(appState.mainUrl, JSON.stringify(messageList[i]), function(){}, 	function(message) {
@@ -143,7 +134,6 @@ function onLoginButtonClick() {
 
 function onEditLoginButtonClick() {
     var loginWindowButton = document.getElementById("loginWindowButton");
-
     loginWindowButton.innerText = "Confirm";
     $("#loginWindowBackground").fadeIn(300);
 }
@@ -151,13 +141,11 @@ function onEditLoginButtonClick() {
 function onLogoutButtonClick() {
     var username = document.getElementById("username");
     username.innerText = "";
-	
 	hideAll();
 }
 
 function onLoginWindowButtonClick() {
     var login = document.getElementById("loginWindowInput").innerText;
-
     if (login) {
         addLogin(login);
 		revealAll();
@@ -169,19 +157,22 @@ function onDismissLoginWindowButtonClick () {
 }
 
 function restoreFromServer() {
-	var url = appState.mainUrl + "?token=" + appState.token;
-	
+	var url = appState.mainUrl + "?token=" + appState.token + "&version=" + appState.version;
     Get(url, 	function(responseText) {
 					console.assert(responseText != null);
 					var response = JSON.parse(responseText);
 					appState.token = response.token;
-					createAllMessages(response.messages);
+                    if (response.version == appState.version) {
+					   createAllMessages(response.messages);
+                    } else {
+                        appState.version = response.version;
+                        clearAllMessages();
+                        createAllMessages(response.messages);
+                    }
         		}, 	
 				function(message) {
 					defaultErrorHandler(message);
-					//wait();
 				});
-
 	setTimeout(function() {
 					restoreFromServer();
 				}, 1000);
@@ -194,6 +185,14 @@ function createAllMessages(allMessages) {
 			messageList.push(allMessages[i]);
             addMessageInternal(allMessages[i]);
         }
+    }
+}
+
+function clearAllMessages() {
+    var messageBox = document.getElementById("messageBox");
+    messageList.splice(0, messageList.length);
+    while (messageBox.firstChild) {
+        messageBox.removeChild(messageBox.firstChild);
     }
 }
 
@@ -232,17 +231,14 @@ function addMessage(message, continueWith) {
     if (!message.text) {
 		return;
 	}
-    
     Post(appState.mainUrl, JSON.stringify(message), function(){}, 	function(message) {
 																		defaultErrorHandler(message);
-																		//wait();
 																	});
 }
     
 function addMessageInternal(message) {
     var newMessage = createMessage(message.author, message.text),
         messages = document.getElementById("messageBox");
-
     newMessage.id = message.id;
 	messages.appendChild(newMessage);
 }
@@ -288,9 +284,7 @@ function addLogin(value) {
     if (!value) {
 		return;
 	}
-	    
     restoreFromServer();
-	
     var username = document.getElementById("username");
 	username.style.display = "block";
     username.innerHTML = value;
@@ -316,44 +310,41 @@ function Delete(url, data, continueWith, continueWithError) {
 function ajax(method, url, data, continueWith, continueWithError) {
 	var xhr = new XMLHttpRequest();
 	xhr.open(method, url, true);
-	xhr.onload = function () {
-		if (xhr.readyState !== 4) {
-			indicatorOff();
-			return;
-		}
+	xhr.onload    = function () {
+                        if (xhr.readyState !== 4) {
+                            indicatorOff();
+                            return;
+                        }
 
-		if(xhr.status != 200) {
-			continueWithError('Error on the server side, response ' + xhr.status);
-			indicatorOff();
-			return;
-		}
+                        if(xhr.status != 200) {
+                            continueWithError('Error on the server side, response ' + xhr.status);
+                            indicatorOff();
+                            return;
+                        }
 
-		if(isError(xhr.responseText)) {
-			continueWithError('Error on the server side, response ' + xhr.responseText);
-			indicatorOff();
-			return;
-		}
+                        if(isError(xhr.responseText)) {
+                            continueWithError('Error on the server side, response ' + xhr.responseText);
+                            indicatorOff();
+                            return;
+                        }
 
-		indicatorOn();
-		continueWith(xhr.responseText);
-	};    
-
+                        indicatorOn();
+                        continueWith(xhr.responseText);
+                     };
     xhr.ontimeout = function () {
-		indicatorOff();
-    	continueWithError('Server timed out !');
-    }
+                        indicatorOff();
+                        continueWithError('Server timed out !');
+                    };
+    xhr.onerror   = function (e) {
+                        var errMsg = 'Server connection error !\n'+
+                        '\n' +
+                        'Check if \n'+
+                        '- server is active\n'+
+                        '- server sends header "Access-Control-Allow-Origin:*"';
 
-    xhr.onerror = function (e) {
-    	var errMsg = 'Server connection error !\n'+
-    	'\n' +
-    	'Check if \n'+
-    	'- server is active\n'+
-    	'- server sends header "Access-Control-Allow-Origin:*"';
-
-		indicatorOff();
-        continueWithError(errMsg);
-    };
-
+                        indicatorOff();
+                        continueWithError(errMsg);
+                    };
     xhr.send(data);
 }
 
@@ -366,18 +357,17 @@ function indicatorOff() {
 }
 
 function isError(text) {
-	if(text == "")
+	if(text == "") {
 		return false;
-	
+    }
 	try {
 		var obj = JSON.parse(text);
 	} catch(ex) {
 		return true;
 	}
-
 	return !!obj.error;
 }
 
 function defaultErrorHandler(message) {
-	//alert(model);
+	//alert(message);
 }
