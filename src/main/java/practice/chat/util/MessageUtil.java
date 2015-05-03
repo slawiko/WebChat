@@ -39,21 +39,23 @@ public final class MessageUtil {
 		return new Message(id.toString(), author.toString(), text.toString());
 	}
 
-	public static Message nodeToMessage(Node node) {
-		NodeList childNodes = node.getChildNodes();
-		Message message = null;
-		Object obj = node.getAttributes();
-		message.setId(obj.toString());
-		int length = childNodes.getLength();
-		for (int i = 0; i < length; i++) {
-			if (AUTHOR.equals(childNodes.item(i).getNodeName())) {
-				message.setAuthor(childNodes.item(i).getNodeValue());
-			}else if (TEXT.equals(childNodes.item(i).getNodeName())) {
-				message.setText(childNodes.item(i).getNodeValue());
-			}else if (DATE.equals(childNodes.item(i).getNodeName())) {
-				message.setDate(childNodes.item(i).getNodeValue());
+	public static Message nodeToMessage(NodeList nodes, String id) {
+		String author = null;
+		String text = null;
+		String date = null;
+		for (int i = 0; i < nodes.getLength(); i++) {
+			Node node = nodes.item(i);
+			String nodeName = node.getNodeName();
+			String nodeValue = node.getFirstChild().getNodeValue();
+
+			if (nodeName.equals(AUTHOR)) {
+				author = nodeValue;
+			} else if (nodeName.equals(TEXT)) {
+				text = nodeValue;
+			} else if (nodeName.equals(DATE)) {
+				date = nodeValue;
 			}
 		}
-		return message;
+		return new Message(id, author, text, date);
 	}
 }

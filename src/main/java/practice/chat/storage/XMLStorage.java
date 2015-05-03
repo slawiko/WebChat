@@ -21,7 +21,6 @@ import javax.xml.xpath.*;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
@@ -146,21 +145,19 @@ public final class XMLStorage {
 		return root.getElementsByTagName(MESSAGE).getLength();
 	}
 
-	private static synchronized Node getNodeById(Document document, String id) throws XPathExpressionException, IOException, SAXException, ParserConfigurationException {
+	private static synchronized NodeList getNodeById(Document document, String id) throws XPathExpressionException, IOException, SAXException, ParserConfigurationException {
 		XPath xpath = XPathFactory.newInstance().newXPath();
-		String expression = "//" + MESSAGE + "[@id='" + id + "']";
+		String expression = "//" + MESSAGE + "[@id='" + id + "']/*";
 		XPathExpression expr = xpath.compile(expression);
-		Node node = (Node) expr.evaluate(document,  XPathConstants.NODE);
-		return node;
+		return (NodeList) expr.evaluate(document,  XPathConstants.NODESET);
 	}
 
-	public static Message getMessageById(String id) throws SAXException, ParserConfigurationException, XPathExpressionException, IOException {
+	public static synchronized Message getMessageById(String id) throws SAXException, ParserConfigurationException, XPathExpressionException, IOException {
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
 		Document document = documentBuilder.parse(STORAGE_LOCATION);
 		document.getDocumentElement().normalize();
-		Node node = getNodeById(document, id);
-		return nodeToMessage(node);
+		return nodeToMessage(getNodeById(document, id), id);
 	}
 
 	private static synchronized Transformer getTransformer() throws TransformerConfigurationException {
