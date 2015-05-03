@@ -25,10 +25,14 @@ import practice.chat.util.ServletUtil;
 
 @WebServlet("/chat")
 public class ChatServlet extends HttpServlet {
+	private static final String TOKEN = "token";
+	private static final String VERSION = "version";
+	private Integer serverVersion;
 
 	@Override
 	public void init() throws ServletException {
 		try {
+			versionUpdate();
 			loadHistory();
 		} catch (SAXException e) {
 			e.printStackTrace();
@@ -44,11 +48,16 @@ public class ChatServlet extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String token = request.getParameter(TOKEN);
+		String clientVersion = request.getParameter(VERSION);
 		if (token != null && !"".equals(token)) {
 			int index = getIndex(token);
 			String messages = null;
 			try {
-				messages = getServerResponse(index);
+				if (serverVersion.toString().equals(clientVersion)) {
+					messages = getServerResponse(index, serverVersion);
+				} else {
+					messages = getServerResponse(0, serverVersion);
+				}
 			} catch (ParserConfigurationException e) {
 				e.printStackTrace();
 			} catch (SAXException e) {
@@ -56,7 +65,7 @@ public class ChatServlet extends HttpServlet {
 			} catch (XPathExpressionException e) {
 				e.printStackTrace();
 			}
-			response.setContentType(ServletUtil.APPLICATION_JSON);
+			response.setContentType(APPLICATION_JSON);
 			response.setCharacterEncoding("UTF-8");
 			PrintWriter out = response.getWriter();
 			out.print(messages);
@@ -95,6 +104,7 @@ public class ChatServlet extends HttpServlet {
 			Message message = jsonToMessage(json);
 			if (message != null) {
 				XMLStorage.updateData(message);
+				versionUpdate();
 				response.setStatus(HttpServletResponse.SC_OK);
 			} else {
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Message does not exist");
@@ -120,6 +130,7 @@ public class ChatServlet extends HttpServlet {
 			Message message = jsonToMessage(json);
 			System.out.println("Delete message: " + message.getDate() + " {" + message.getAuthor() + "} : {" + message.getText() + "}");
 			XMLStorage.removeData(message);
+			versionUpdate();
 		} catch (ParseException e) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 		} catch (ParserConfigurationException e) {
@@ -130,6 +141,14 @@ public class ChatServlet extends HttpServlet {
 			e.printStackTrace();
 		} catch (XPathExpressionException e) {
 			e.printStackTrace();
+		}
+	}
+
+	private void versionUpdate(){
+		if (serverVersion != null) {
+			serverVersion++;
+		} else {
+			serverVersion = 0;
 		}
 	}
 }
