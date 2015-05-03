@@ -4,4 +4,17 @@
 
 <web-app>
     <display-name>Archetype Created Web Application</display-name>
+    
+    <error-page>
+        <error-code>400</error-code>
+        <jsp:directive.page errorPage="/errors/400.jsp" />
+    </error-page>
+    <error-page>
+        <error-code>404</error-code>
+        <jsp:directive.page errorPage="/errors/404.jsp" />
+    </error-page>
+    <error-page>
+        <error-code>500</error-code>
+        <jsp:directive.page errorPage="/errors/500.jsp" />
+    </error-page>
 </web-app>
