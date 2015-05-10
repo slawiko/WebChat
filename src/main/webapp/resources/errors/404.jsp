@@ -4,6 +4,7 @@
     <head>
         <meta http-equiv = "Content-Type" content = "text/html; charset=UTF-8">
         <title>404 error</title>
+        <%--<link rel="stylesheet" href="errors-css/404.css"/>--%>
         <style>
 			<%@include file="errors-css/404.css"%>
 		</style>
