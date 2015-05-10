@@ -1,5 +1,6 @@
 package practice.chat.util;
 
+import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
 import org.xml.sax.SAXException;
 
@@ -44,11 +45,11 @@ public final class ServletUtil {
 		return jsonObject.toJSONString();
 	}
 
-	public static void loadHistory() throws SAXException, IOException, ParserConfigurationException, TransformerException {
+	public static void loadHistory(Logger logger) throws SAXException, IOException, ParserConfigurationException, TransformerException {
 		if (XMLStorage.isExist()) {
 			List<Message> messages = XMLStorage.getListMessages();
 			for(Message message : messages) {
-				System.out.println("Read a message from history.xml: " + message.getDate() + " {" + message.getAuthor() + "} : {" + message.getText() + "}" );
+				logger.info("Read a message from history.xml: " + message.getDate() + " {" + message.getAuthor() + "} : {" + message.getText() + "}" );
 			}
 		} else {
 			XMLStorage.createStorage();

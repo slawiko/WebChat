@@ -12,6 +12,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
 
@@ -28,42 +29,38 @@ public class ChatServlet extends HttpServlet {
 	private static final String TOKEN = "token";
 	private static final String VERSION = "version";
 	private Integer serverVersion;
+	private static final Logger logger = Logger.getLogger(ChatServlet.class);
 
 	@Override
 	public void init() throws ServletException {
 		try {
 			versionUpdate();
-			loadHistory();
-		} catch (SAXException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (ParserConfigurationException e) {
-			e.printStackTrace();
-		} catch (TransformerException e) {
-			e.printStackTrace();
+			loadHistory(logger);
+		} catch (SAXException | IOException | ParserConfigurationException | TransformerException e) {
+			logger.error(e);
 		}
 	}
 
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		logger.info("doGet");
 		String token = request.getParameter(TOKEN);
+		logger.info("Token: " + token);
 		String clientVersion = request.getParameter(VERSION);
+		logger.info("ClientVersion: " + clientVersion);
 		if (token != null && !"".equals(token)) {
 			int index = getIndex(token);
 			String messages = null;
 			try {
 				if (serverVersion.toString().equals(clientVersion)) {
 					messages = getServerResponse(index, serverVersion);
+					logger.info("Get messages from history: " + messages);
 				} else {
 					messages = getServerResponse(0, serverVersion);
+					logger.info("Get messages from history: " + messages);
 				}
-			} catch (ParserConfigurationException e) {
-				e.printStackTrace();
-			} catch (SAXException e) {
-				e.printStackTrace();
-			} catch (XPathExpressionException e) {
-				e.printStackTrace();
+			} catch (ParserConfigurationException | SAXException | XPathExpressionException e) {
+				logger.error(e);
 			}
 			response.setContentType(APPLICATION_JSON);
 			response.setCharacterEncoding("UTF-8");
@@ -72,33 +69,33 @@ public class ChatServlet extends HttpServlet {
 			out.flush();
 		} else {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "'token' parameter needed");
+			logger.error("BAD_REQUEST: 'token' parameter needed");
 		}
 	}
 
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws  ServletException, IOException {
+		logger.info("doPost");
 		String data = ServletUtil.getMessageBody(request);
+		logger.info(data);
 		try {
 			JSONObject json = stringToJson(data);
 			Message temp = jsonToMessage(json);
 			Message message = new Message(temp.getAuthor(), temp.getText());
-			System.out.println("Post message: " + message.getDate() + " {" + message.getAuthor() + "} : {" + message.getText() + "}");
+			logger.info("Post message: " + message.getDate() + " {" + message.getAuthor() + "} : {" + message.getText() + "}");
 			XMLStorage.addData(message);
 			response.setStatus(HttpServletResponse.SC_OK);
-		} catch (ParseException e) {
+		} catch (ParseException | ParserConfigurationException | SAXException | TransformerException e) {
+			logger.error(e);
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
-		} catch (ParserConfigurationException e) {
-			e.printStackTrace();
-		} catch (SAXException e) {
-			e.printStackTrace();
-		} catch (TransformerException e) {
-			e.printStackTrace();
 		}
 	}
 
 	@Override
 	protected void doPut(HttpServletRequest request, HttpServletResponse response) throws  ServletException, IOException {
+		logger.info("doPut");
 		String data = ServletUtil.getMessageBody(request);
+		logger.info(data);
 		try {
 			JSONObject json = stringToJson(data);
 			Message message = jsonToMessage(json);
@@ -108,17 +105,11 @@ public class ChatServlet extends HttpServlet {
 				response.setStatus(HttpServletResponse.SC_OK);
 			} else {
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Message does not exist");
+				logger.error("BAD_REQUEST: Message does not exist");
 			}
-		} catch (ParseException e) {
+		} catch (ParseException | SAXException | ParserConfigurationException | TransformerException | XPathExpressionException e) {
+			logger.error(e);
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
-		} catch (SAXException e) {
-			e.printStackTrace();
-		} catch (ParserConfigurationException e) {
-			e.printStackTrace();
-		} catch (XPathExpressionException e) {
-			e.printStackTrace();
-		} catch (TransformerException e) {
-			e.printStackTrace();
 		}
 	}
 
@@ -128,25 +119,19 @@ public class ChatServlet extends HttpServlet {
 		try {
 			JSONObject json = stringToJson(data);
 			Message message = jsonToMessage(json);
-			System.out.println("Delete message: " + message.getDate() + " {" + message.getAuthor() + "} : {" + message.getText() + "}");
+			logger.info("Delete message: " + message.getDate() + " {" + message.getAuthor() + "} : {" + message.getText() + "}");
 			XMLStorage.removeData(message);
 			versionUpdate();
-		} catch (ParseException e) {
+		} catch (ParseException | ParserConfigurationException | SAXException | TransformerException | XPathExpressionException e) {
+			logger.error(e);
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
-		} catch (ParserConfigurationException e) {
-			e.printStackTrace();
-		} catch (SAXException e) {
-			e.printStackTrace();
-		} catch (TransformerException e) {
-			e.printStackTrace();
-		} catch (XPathExpressionException e) {
-			e.printStackTrace();
 		}
 	}
 
 	private void versionUpdate(){
 		if (serverVersion != null) {
 			serverVersion++;
+			logger.info("Version changed" + serverVersion);
 		} else {
 			serverVersion = 0;
 		}
