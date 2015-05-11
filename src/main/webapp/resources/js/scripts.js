@@ -121,8 +121,8 @@ function onDeleteMessageButtonClick(eventObj) {
                 url: appState.mainUrl,
                 type: "DELETE",
                 data: JSON.stringify(messageList[i]),
-                success: function() {indicatorOn();},
-                error: function() {indicatorOff();}
+                success: indicatorOn,
+                error: indicatorOff
             });
 			messageList.splice(i, 1);
             return;
@@ -174,11 +174,9 @@ function restoreFromServer() {
             }
             indicatorOn();
         },
-        error: function() {indicatorOff();}
+        error: indicatorOff,
+        complete: restoreFromServer
     });
-    setTimeout(function() {
-        restoreFromServer();
-    }, 1000);
 }
 
 function createAllMessages(allMessages) {
@@ -239,8 +237,8 @@ function addMessage(message) {
         url: appState.mainUrl,
         type: "POST",
         data: JSON.stringify(message),
-        success: function() {indicatorOn();},
-        error: function() {indicatorOff();}
+        success: indicatorOn,
+        error: indicatorOff
     });
 }
     
@@ -258,8 +256,8 @@ function updateMessageList(newMessage, messageList_) {
         url: appState.mainUrl,
         type: "PUT",
         data: JSON.stringify(messageList_),
-        success: function() {indicatorOn();},
-        error: function() {indicatorOff();}
+        success: indicatorOn,
+        error: indicatorOff
     });
 }
 
