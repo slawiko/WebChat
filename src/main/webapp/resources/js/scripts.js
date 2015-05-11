@@ -53,7 +53,7 @@ function delegateEvent(eventObj) {
     }
 }
 
-function onSendButtonClick(value) {
+function onSendButtonClick() {
     var messageText = document.getElementById("textBox"), 
 		username = document.getElementById("username"),
 		message = messageStruct(username.innerText, messageText.innerText),
@@ -64,15 +64,13 @@ function onSendButtonClick(value) {
         messageText.innerHTML = "";
         return;
     } else {
-        var id = editingMessage.attributes["id"].value,
-			message;
+        var id = editingMessage.attributes["id"].value;
         for (i = 0; i < messageList.length; i++) {
             if (messageList[i].id === id) {
                 editingMessage.childNodes[0].childNodes[1].innerHTML = messageText.innerHTML;
                 updateMessageList(messageText.innerHTML, messageList[i]);
                 messageText.innerHTML = "";
                 sendButton.innerHTML = "Send";
-                return;
             }    
         }
     }
@@ -118,10 +116,14 @@ function onDeleteMessageButtonClick(eventObj) {
     messageBox.removeChild(parentMessage);
     for (i = 0; i < messageList.length; i++) {
         if (messageList[i].id === id) {
-			Delete(appState.mainUrl, JSON.stringify(messageList[i]), function(){}, 	function(message) {
-																						defaultErrorHandler(message);
-																						wait();
-																					});
+            
+            $.ajax({
+                url: appState.mainUrl,
+                type: "DELETE",
+                data: JSON.stringify(messageList[i]),
+                success: function() {indicatorOn();},
+                error: function() {indicatorOff();}
+            });
 			messageList.splice(i, 1);
             return;
         }
@@ -156,26 +158,27 @@ function onDismissLoginWindowButtonClick () {
     $("#loginWindowBackground").fadeOut(300);
 }
 
-function restoreFromServer() {
-	var url = appState.mainUrl + "?token=" + appState.token + "&version=" + appState.version;
-    Get(url, 	function(responseText) {
-					console.assert(responseText != null);
-					var response = JSON.parse(responseText);
-					appState.token = response.token;
-                    if (response.version == appState.version) {
-					   createAllMessages(response.messages);
-                    } else {
-                        appState.version = response.version;
-                        clearAllMessages();
-                        createAllMessages(response.messages);
-                    }
-        		}, 	
-				function(message) {
-					defaultErrorHandler(message);
-				});
-	setTimeout(function() {
-					restoreFromServer();
-				}, 1000);
+function restoreFromServer() { 
+    $.ajax({
+        url: appState.mainUrl + "?token=" + appState.token + "&version=" + appState.version,
+        type: "GET",
+        success: function(result) {
+            console.assert(result != null);
+            appState.token = result.token;
+            if (result.version == appState.version) {
+                createAllMessages(result.messages);
+            } else {
+                appState.version = result.version;
+                clearAllMessages();
+                createAllMessages(result.messages);
+            }
+            indicatorOn();
+        },
+        error: function() {indicatorOff();}
+    });
+    setTimeout(function() {
+        restoreFromServer();
+    }, 1000);
 }
 
 function createAllMessages(allMessages) {
@@ -227,13 +230,18 @@ function hideAll() {
     loginWindowInput.innerText = "";
 }
 
-function addMessage(message, continueWith) {
+function addMessage(message) {
     if (!message.text) {
 		return;
 	}
-    Post(appState.mainUrl, JSON.stringify(message), function(){}, 	function(message) {
-																		defaultErrorHandler(message);
-																	});
+    
+    $.ajax({
+        url: appState.mainUrl,
+        type: "POST",
+        data: JSON.stringify(message),
+        success: function() {indicatorOn();},
+        error: function() {indicatorOff();}
+    });
 }
     
 function addMessageInternal(message) {
@@ -245,10 +253,14 @@ function addMessageInternal(message) {
 
 function updateMessageList(newMessage, messageList_) {
     messageList_.text = newMessage;
-	Put(appState.mainUrl, JSON.stringify(messageList_), function(){},	function(message) {
-																			defaultErrorHandler(message);
-																			//wait();
-																		});
+    
+    $.ajax({
+        url: appState.mainUrl,
+        type: "PUT",
+        data: JSON.stringify(messageList_),
+        success: function() {indicatorOn();},
+        error: function() {indicatorOff();}
+    });
 }
 
 function createMessage(username, textMessage) {
@@ -288,64 +300,6 @@ function addLogin(value) {
     var username = document.getElementById("username");
 	username.style.display = "block";
     username.innerHTML = value;
-    return;
-}
-
-function Get(url, continueWith, continueWithError) {
-	ajax('GET', url, null, continueWith, continueWithError);
-}
-
-function Post(url, data, continueWith, continueWithError) {
-	ajax('POST', url, data, continueWith, continueWithError);	
-}
-
-function Put(url, data, continueWith, continueWithError) {
-	ajax('PUT', url, data, continueWith, continueWithError);	
-}
-
-function Delete(url, data, continueWith, continueWithError) {
-	ajax('DELETE', url, data, continueWith, continueWithError);	
-}
-
-function ajax(method, url, data, continueWith, continueWithError) {
-	var xhr = new XMLHttpRequest();
-	xhr.open(method, url, true);
-	xhr.onload    = function () {
-                        if (xhr.readyState !== 4) {
-                            indicatorOff();
-                            return;
-                        }
-
-                        if(xhr.status != 200) {
-                            continueWithError('Error on the server side, response ' + xhr.status);
-                            indicatorOff();
-                            return;
-                        }
-
-                        if(isError(xhr.responseText)) {
-                            continueWithError('Error on the server side, response ' + xhr.responseText);
-                            indicatorOff();
-                            return;
-                        }
-
-                        indicatorOn();
-                        continueWith(xhr.responseText);
-                     };
-    xhr.ontimeout = function () {
-                        indicatorOff();
-                        continueWithError('Server timed out !');
-                    };
-    xhr.onerror   = function (e) {
-                        var errMsg = 'Server connection error !\n'+
-                        '\n' +
-                        'Check if \n'+
-                        '- server is active\n'+
-                        '- server sends header "Access-Control-Allow-Origin:*"';
-
-                        indicatorOff();
-                        continueWithError(errMsg);
-                    };
-    xhr.send(data);
 }
 
 function indicatorOn() {	
@@ -354,20 +308,4 @@ function indicatorOn() {
 
 function indicatorOff() {
 	$("#serverIndicator").animate({"color":"#ffc2c2", "backgroundColor": "#b95c58"}, 350);
-}
-
-function isError(text) {
-	if(text == "") {
-		return false;
-    }
-	try {
-		var obj = JSON.parse(text);
-	} catch(ex) {
-		return true;
-	}
-	return !!obj.error;
-}
-
-function defaultErrorHandler(message) {
-	//alert(message);
 }
