@@ -43,7 +43,6 @@ public class ChatServlet extends HttpServlet {
 
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		logger.info("doGet");
 		String token = request.getParameter(TOKEN);
 		logger.info("Token: " + token);
 		String clientVersion = request.getParameter(VERSION);
@@ -75,7 +74,6 @@ public class ChatServlet extends HttpServlet {
 
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws  ServletException, IOException {
-		logger.info("doPost");
 		String data = ServletUtil.getMessageBody(request);
 		logger.info(data);
 		try {
@@ -93,7 +91,6 @@ public class ChatServlet extends HttpServlet {
 
 	@Override
 	protected void doPut(HttpServletRequest request, HttpServletResponse response) throws  ServletException, IOException {
-		logger.info("doPut");
 		String data = ServletUtil.getMessageBody(request);
 		logger.info(data);
 		try {
@@ -131,7 +128,7 @@ public class ChatServlet extends HttpServlet {
 	private void versionUpdate(){
 		if (serverVersion != null) {
 			serverVersion++;
-			logger.info("Version changed" + serverVersion);
+			logger.info("Version changed: " + serverVersion);
 		} else {
 			serverVersion = 0;
 		}
