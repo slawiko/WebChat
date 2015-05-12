@@ -80,7 +80,7 @@ public class ChatServlet extends HttpServlet {
 			JSONObject json = stringToJson(data);
 			Message temp = jsonToMessage(json);
 			Message message = new Message(temp.getAuthor(), temp.getText());
-			logger.info("Post message: " + message.getDate() + " {" + message.getAuthor() + "} : {" + message.getText() + "}");
+			logger.info("Post message: {" + message.getAuthor() + "} : {" + message.getText() + "}");
 			XMLStorage.addData(message);
 			response.setStatus(HttpServletResponse.SC_OK);
 		} catch (ParseException | ParserConfigurationException | SAXException | TransformerException e) {
@@ -98,6 +98,7 @@ public class ChatServlet extends HttpServlet {
 			Message message = jsonToMessage(json);
 			if (message != null) {
 				XMLStorage.updateData(message);
+				logger.info("Put message: {" + message.getId() + "} {" + message.getAuthor() + "} : {" + message.getText() + "}");
 				versionUpdate();
 				response.setStatus(HttpServletResponse.SC_OK);
 			} else {
