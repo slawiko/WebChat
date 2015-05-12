@@ -101,7 +101,6 @@ function onEditMessageButtonClick(eventObj) {
 
 function onDeleteMessageButtonClick(eventObj) {
     var parentMessage = eventObj.target.parentNode,
-        messageBox = document.getElementById("messageBox"),
         id = parentMessage.attributes["id"].value,
         i,
 		sendButton = document.getElementById("sendButton"),
@@ -113,7 +112,7 @@ function onDeleteMessageButtonClick(eventObj) {
 	if (sendButton.innerHTML == "Edit") {
 		return;
 	}
-    messageBox.removeChild(parentMessage);
+    $("messageBox").remove(eventObj.target.parentNode);
     for (i = 0; i < messageList.length; i++) {
         if (messageList[i].id === id) {
             
@@ -135,14 +134,12 @@ function onLoginButtonClick() {
 }
 
 function onEditLoginButtonClick() {
-    var loginWindowButton = document.getElementById("loginWindowButton");
-    loginWindowButton.innerText = "Confirm";
+    $("#loginWindowButton").text("Confirm");
     $("#loginWindowBackground").fadeIn(300);
 }
 
 function onLogoutButtonClick() {
-    var username = document.getElementById("username");
-    username.innerText = "";
+    $("#username").text("");
 	hideAll();
 }
 
@@ -197,35 +194,26 @@ function clearAllMessages() {
     }
 }
 
-function revealAll() {
-	var loginButton = document.getElementById("loginButton"),
-        logoutButton = document.getElementById("logoutButton"),
-        editLoginButton = document.getElementById("editLoginButton");
-	
+function revealAll() {	
 	$("#hiddenUserBox").fadeOut(300);
 	$("#hiddenMessageBox").fadeOut(300);
 	$("#hiddenTextBox").fadeOut(300);
     $("#loginWindowBackground").fadeOut(300);
-	
-	loginButton.style.display = "none";
-	logoutButton.style.display = "block";
-	editLoginButton.style.display = "block";
+    
+    $("#loginButton").hide();
+    $("#logoutButton").show();
+    $("#editLoginButton").show();
 }
 
 function hideAll() {
-	var loginButton = document.getElementById("loginButton"),
-        editLoginButton = document.getElementById("editLoginButton"),
-        logoutButton = document.getElementById("logoutButton"),
-        loginWindowInput = document.getElementById("loginWindowInput");
-	
 	$("#hiddenUserBox").fadeIn(300);
 	$("#hiddenMessageBox").fadeIn(300);
 	$("#hiddenTextBox").fadeIn(300);
+    $("#loginWindowInput").text("");
 	
-    loginButton.style.display = "block";
-    editLoginButton.style.display = "none";
-    logoutButton.style.display = "none";
-    loginWindowInput.innerText = "";
+    $("#loginButton").show();
+    $("#logoutButton").hide();
+    $("#editLoginButton").hide();
 }
 
 function addMessage(message) {
@@ -262,30 +250,15 @@ function updateMessageList(newMessage, messageList_) {
 }
 
 function createMessage(username, textMessage) {
-    var newMessage = document.createElement("div"),
-        message = document.createElement("div"),
-        user = document.createElement("span"),
-        text = document.createElement("span"),
-        editMessageButton = document.createElement("img"),
-        deleteMessageButton = document.createElement("img");
-
-    user.innerHTML = username + ":&nbsp";
-    text.innerHTML = textMessage;
+    var message = document.createElement("div"),
+        newMessage = document.createElement("div");
     
-    newMessage.setAttribute("class", "message");
-    user.setAttribute("class", "user");
-    text.setAttribute("class", "text");
-
-    editMessageButton.setAttribute  ("class", "editMessageButton icon");
-    editMessageButton.setAttribute  ("src", "resources/css/images/edit.png");
-    deleteMessageButton.setAttribute("class", "deleteMessageButton icon");
-    deleteMessageButton.setAttribute("src", "resources/css/images/trash.png");
-
-    message.appendChild(user);
-    message.appendChild(text);
-    newMessage.appendChild(message);
-    newMessage.appendChild(editMessageButton);
-    newMessage.appendChild(deleteMessageButton);
+    $(message).append("<span class='user'>" + username + ":&nbsp" + "</span>");
+    $(message).append("<span class='text'>" + textMessage + "</span>");
+    $(newMessage).attr("class", "message");
+    $(newMessage).append(message);
+    $(newMessage).append("<img class='editMessageButton icon' src='resources/css/images/edit.png'>");
+    $(newMessage).append("<img class='deleteMessageButton icon' src='resources/css/images/trash.png'>");
     
     return newMessage;
 }
