@@ -9,7 +9,8 @@ var messageStruct = function (author, text) {
     appState      = {
                     mainUrl : 'chat',
                     token : 'TN11EN',
-                    version : 0 },
+                    version : 0,
+                    clientId: 0 },
 	messageList   = [],
     editingMessage;
 
