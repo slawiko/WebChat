@@ -50,6 +50,7 @@ public class Message {
         return format.format(date);
     }
 
+    @Override
     public String toString() {
         return "{\"id\":\"" + this.id + "\",\"author\":\"" + this.author + "\",\"text\":\"" + this.text + "\",\"date\":\"" + this.date + "\"}";
     }
