@@ -2,7 +2,12 @@ package practice.chat.controller;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.*;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
+import javax.servlet.AsyncContext;
+import javax.servlet.AsyncEvent;
+import javax.servlet.AsyncListener;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -12,6 +17,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPathExpressionException;
 
+import com.sun.jmx.remote.internal.ArrayQueue;
 import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
@@ -24,12 +30,13 @@ import practice.chat.model.Message;
 import practice.chat.storage.XMLStorage;
 import practice.chat.util.ServletUtil;
 
-@WebServlet("/chat")
+@WebServlet(urlPatterns = "/chat", asyncSupported = true)
 public class ChatServlet extends HttpServlet {
 	private static final String TOKEN = "token";
 	private static final String VERSION = "version";
 	private Integer serverVersion;
 	private static final Logger logger = Logger.getLogger(ChatServlet.class);
+	private List<AsyncContext> asyncContexts = Collections.synchronizedList(new ArrayList<AsyncContext>());
 
 	@Override
 	public void init() throws ServletException {
@@ -43,7 +50,7 @@ public class ChatServlet extends HttpServlet {
 
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		String token = request.getParameter(TOKEN);
+		/*String token = request.getParameter(TOKEN);
 		logger.info("Token: " + token);
 		String clientVersion = request.getParameter(VERSION);
 		logger.info("ClientVersion: " + clientVersion);
@@ -69,7 +76,29 @@ public class ChatServlet extends HttpServlet {
 		} else {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "'token' parameter needed");
 			logger.error("BAD_REQUEST: 'token' parameter needed");
-		}
+		}*/
+		AsyncContext asyncContext = request.startAsync(request, response);
+		asyncContexts.add(asyncContext);
+
+		asyncContext.setTimeout(35 * 1000);
+		asyncContext.addListener(new AsyncListener() {
+			@Override
+			public void onComplete(AsyncEvent event) throws IOException {
+			}
+
+			@Override
+			public void onTimeout(AsyncEvent event) throws IOException {
+			}
+
+			@Override
+			public void onError(AsyncEvent event) throws IOException {
+			}
+
+			@Override
+			public void onStartAsync(AsyncEvent event) throws IOException {
+			}
+		});
+		asyncContexts.add(asyncContext);
 	}
 
 	@Override
