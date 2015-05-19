@@ -5,6 +5,7 @@ import org.xml.sax.SAXException;
 import javax.servlet.AsyncContext;
 import javax.servlet.AsyncEvent;
 import javax.servlet.AsyncListener;
+import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 import java.io.IOException;
@@ -16,6 +17,7 @@ import static practice.chat.util.ServletUtil.*;
 
 public class RequestQueue {
     private static Queue<AsyncContext> asyncContextsQueue = new ConcurrentLinkedQueue<AsyncContext>();
+    public static final String APPLICATION_JSON = "application/json";
 
     public static void addAsyncContext(AsyncContext asyncContext) {
         asyncContext.addListener(new AsyncListener() {
@@ -50,7 +52,10 @@ public class RequestQueue {
         for(AsyncContext asyncContext : asyncContextsQueue) {
             String answer = getServerResponse();
             try {
-                PrintWriter writer = asyncContext.getResponse().getWriter();
+                HttpServletResponse response = (HttpServletResponse) asyncContext.getResponse();
+                response.setContentType(APPLICATION_JSON);
+                response.setCharacterEncoding("UTF-8");
+                PrintWriter writer = response.getWriter();
                 writer.print(answer);
                 writer.flush();
                 asyncContext.complete();
