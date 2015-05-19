@@ -180,15 +180,6 @@ public final class XMLStorage {
 		return getListMessages(nodeList);
 	}
 
-	public static synchronized int getStorageSize() throws SAXException, IOException, ParserConfigurationException {
-		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-		DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-		Document document = documentBuilder.parse(STORAGE_LOCATION);
-		document.getDocumentElement().normalize();
-		Element root = document.getDocumentElement();
-		return root.getElementsByTagName(MESSAGE).getLength();
-	}
-
 	private static Node getNodeById(Document doc, String id) throws XPathExpressionException {
 		XPath xpath = XPathFactory.newInstance().newXPath();
 		XPathExpression expr = xpath.compile("//" + MESSAGE + "[@id='" + id + "']");

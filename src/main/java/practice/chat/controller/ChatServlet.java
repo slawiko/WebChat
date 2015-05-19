@@ -41,7 +41,7 @@ public class ChatServlet extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		AsyncContext asyncContext = request.startAsync();
-		asyncContext.setTimeout(300000);
+		asyncContext.setTimeout(300000000);
 		addAsyncContext(asyncContext);
 	}
 
