@@ -1,13 +1,8 @@
 package practice.chat.controller;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.*;
-import java.util.concurrent.ConcurrentLinkedDeque;
 
 import javax.servlet.AsyncContext;
-import javax.servlet.AsyncEvent;
-import javax.servlet.AsyncListener;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -17,13 +12,13 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPathExpressionException;
 
-import com.sun.jmx.remote.internal.ArrayQueue;
 import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
 
 import static practice.chat.util.MessageUtil.*;
 import static practice.chat.util.ServletUtil.*;
+import static practice.chat.controller.RequestQueue.*;
 
 import org.xml.sax.SAXException;
 import practice.chat.model.Message;
@@ -32,16 +27,11 @@ import practice.chat.util.ServletUtil;
 
 @WebServlet(urlPatterns = "/chat", asyncSupported = true)
 public class ChatServlet extends HttpServlet {
-	private static final String TOKEN = "token";
-	private static final String VERSION = "version";
-	private Integer serverVersion;
 	private static final Logger logger = Logger.getLogger(ChatServlet.class);
-	private List<AsyncContext> asyncContexts = Collections.synchronizedList(new ArrayList<AsyncContext>());
 
 	@Override
 	public void init() throws ServletException {
 		try {
-			versionUpdate();
 			loadHistory(logger);
 		} catch (SAXException | IOException | ParserConfigurationException | TransformerException e) {
 			logger.error(e);
@@ -50,55 +40,9 @@ public class ChatServlet extends HttpServlet {
 
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		/*String token = request.getParameter(TOKEN);
-		logger.info("Token: " + token);
-		String clientVersion = request.getParameter(VERSION);
-		logger.info("ClientVersion: " + clientVersion);
-		if (token != null && !"".equals(token)) {
-			int index = getIndex(token);
-			String messages = null;
-			try {
-				if (serverVersion.toString().equals(clientVersion)) {
-					messages = getServerResponse(index, serverVersion);
-					logger.info("Get messages from history: " + messages);
-				} else {
-					messages = getServerResponse(0, serverVersion);
-					logger.info("Get messages from history: " + messages);
-				}
-			} catch (ParserConfigurationException | SAXException | XPathExpressionException e) {
-				logger.error(e);
-			}
-			response.setContentType(APPLICATION_JSON);
-			response.setCharacterEncoding("UTF-8");
-			PrintWriter out = response.getWriter();
-			out.print(messages);
-			out.flush();
-		} else {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "'token' parameter needed");
-			logger.error("BAD_REQUEST: 'token' parameter needed");
-		}*/
-		AsyncContext asyncContext = request.startAsync(request, response);
-		asyncContexts.add(asyncContext);
-
-		asyncContext.setTimeout(35 * 1000);
-		asyncContext.addListener(new AsyncListener() {
-			@Override
-			public void onComplete(AsyncEvent event) throws IOException {
-			}
-
-			@Override
-			public void onTimeout(AsyncEvent event) throws IOException {
-			}
-
-			@Override
-			public void onError(AsyncEvent event) throws IOException {
-			}
-
-			@Override
-			public void onStartAsync(AsyncEvent event) throws IOException {
-			}
-		});
-		asyncContexts.add(asyncContext);
+		AsyncContext asyncContext = request.startAsync();
+		asyncContext.setTimeout(300000);
+		addAsyncContext(asyncContext);
 	}
 
 	@Override
@@ -108,13 +52,21 @@ public class ChatServlet extends HttpServlet {
 		try {
 			JSONObject json = stringToJson(data);
 			Message temp = jsonToMessage(json);
-			Message message = new Message(temp.getAuthor(), temp.getText());
-			logger.info("Post message: {" + message.getAuthor() + "} : {" + message.getText() + "}");
-			XMLStorage.addData(message);
-			response.setStatus(HttpServletResponse.SC_OK);
+			if (temp != null) {
+				Message message = new Message(temp.getAuthor(), temp.getText());
+				logger.info("Post message: {" + message.getAuthor() + "} : {" + message.getText() + "}");
+				XMLStorage.addData(message);
+				response.setStatus(HttpServletResponse.SC_OK);
+				replyAllClients();
+			} else {
+				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Message is empty");
+				logger.error("BAD_REQUEST: Message is empty");
+			}
 		} catch (ParseException | ParserConfigurationException | SAXException | TransformerException e) {
 			logger.error(e);
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+		} catch (XPathExpressionException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -126,10 +78,10 @@ public class ChatServlet extends HttpServlet {
 			JSONObject json = stringToJson(data);
 			Message message = jsonToMessage(json);
 			if (message != null) {
-				XMLStorage.updateData(message);
 				logger.info("Put message: {" + message.getId() + "} {" + message.getAuthor() + "} : {" + message.getText() + "}");
-				versionUpdate();
+				XMLStorage.updateData(message);
 				response.setStatus(HttpServletResponse.SC_OK);
+				replyAllClients();
 			} else {
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Message does not exist");
 				logger.error("BAD_REQUEST: Message does not exist");
@@ -146,21 +98,17 @@ public class ChatServlet extends HttpServlet {
 		try {
 			JSONObject json = stringToJson(data);
 			Message message = jsonToMessage(json);
-			logger.info("Delete message: " + message.getDate() + " {" + message.getAuthor() + "} : {" + message.getText() + "}");
-			XMLStorage.removeData(message);
-			versionUpdate();
+			if (message != null) {
+				logger.info("Delete message: " + message.getDate() + " {" + message.getAuthor() + "} : {" + message.getText() + "}");
+				XMLStorage.removeData(message);
+				replyAllClients();
+			} else {
+				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Message does not exist");
+				logger.error("BAD_REQUEST: Message does not exist");
+			}
 		} catch (ParseException | ParserConfigurationException | SAXException | TransformerException | XPathExpressionException e) {
 			logger.error(e);
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
-		}
-	}
-
-	private void versionUpdate(){
-		if (serverVersion != null) {
-			serverVersion++;
-			logger.info("Version changed: " + serverVersion);
-		} else {
-			serverVersion = 0;
 		}
 	}
 }

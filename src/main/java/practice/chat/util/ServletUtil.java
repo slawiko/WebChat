@@ -19,10 +19,7 @@ import java.util.List;
 import static practice.chat.util.MessageUtil.getToken;
 
 public final class ServletUtil {
-	public static final String APPLICATION_JSON = "application/json";
-	private static final String TOKEN = "token";
 	private static final String MESSAGES = "messages";
-	private static final String VERSION = "version";
 
 	private ServletUtil() {
 	}
@@ -37,11 +34,9 @@ public final class ServletUtil {
 		return sb.toString();
 	}
 
-	public static String getServerResponse(int index, Integer version) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
+	public static String getServerResponse() throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
 		JSONObject jsonObject = new JSONObject();
-		jsonObject.put(MESSAGES, XMLStorage.getSubNodeList(index));
-		jsonObject.put(TOKEN, getToken(XMLStorage.getStorageSize()));
-		jsonObject.put(VERSION, version.toString());
+		jsonObject.put(MESSAGES, XMLStorage.getSubNodeList());
 		return jsonObject.toJSONString();
 	}
 

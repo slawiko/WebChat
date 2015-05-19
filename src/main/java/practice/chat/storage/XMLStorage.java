@@ -168,7 +168,9 @@ public final class XMLStorage {
 		return messages;
 	}
 
-	public static synchronized List<Message> getSubNodeList(int index) throws IOException, ParserConfigurationException, SAXException, XPathExpressionException {
+	public static synchronized List<Message> getSubNodeList() throws IOException, ParserConfigurationException, SAXException, XPathExpressionException {
+		int index = 0; //Bad idea
+
 		DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder builder = builderFactory.newDocumentBuilder();
 		Document document = builder.parse(new FileInputStream(STORAGE_LOCATION));

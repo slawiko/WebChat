@@ -6,11 +6,7 @@ var messageStruct = function (author, text) {
 						author: author,
 						text: text };
                     },
-    appState      = {
-                    mainUrl : 'chat',
-                    token : 'TN11EN',
-                    version : 0,
-                    clientId: 0 },
+    appState      = { mainUrl : 'chat' },
 	messageList   = [],
     editingMessage;
 
@@ -158,22 +154,17 @@ function onDismissLoginWindowButtonClick () {
 
 function restoreFromServer() { 
     $.ajax({
-        url: appState.mainUrl + "?token=" + appState.token + "&version=" + appState.version,
+        url: appState.mainUrl,
         type: "GET",
-        success: function(result) {
-            console.assert(result != null);
-            appState.token = result.token;
-            if (result.version == appState.version) {
-                createAllMessages(result.messages);
-            } else {
-                appState.version = result.version;
-                clearAllMessages();
-                createAllMessages(result.messages);
-            }
+        success: function(data) {
+            console.assert(data != null);
+            clearAllMessages();
+            createAllMessages(data.messages);
             indicatorOn();
         },
-        error: indicatorOff,
-        complete: restoreFromServer
+        //error: indicatorOff,
+        complete: restoreFromServer,
+        timeout: 30000
     });
 }
 
