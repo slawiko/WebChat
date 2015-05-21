@@ -159,17 +159,19 @@ function restoreFromServer() {
     $.ajax({
         url: appState.mainUrl + "?token=" + appState.token + "&version=" + appState.version,
         type: "GET",
-        success: function(result) {
-            console.assert(result != null);
-            appState.token = result.token;
-            if (result.version == appState.version) {
-                createAllMessages(result.messages);
-            } else {
-                appState.version = result.version;
-                clearAllMessages();
-                createAllMessages(result.messages);
+        success: function(result, textStatus) {
+            if (textStatus === "success") {
+                console.assert(result != null);
+                appState.token = result.token;
+                if (result.version == appState.version) {
+                    createAllMessages(result.messages);
+                } else {
+                    appState.version = result.version;
+                    clearAllMessages();
+                    createAllMessages(result.messages);
+                }
+                indicatorOn();
             }
-            indicatorOn();
         },
         error: indicatorOff,
         complete: restoreFromServer

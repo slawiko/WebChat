@@ -47,28 +47,35 @@ public class ChatServlet extends HttpServlet {
 		logger.info("Token: " + token);
 		String clientVersion = request.getParameter(VERSION);
 		logger.info("ClientVersion: " + clientVersion);
-		if (token != null && !"".equals(token)) {
-			int index = getIndex(token);
-			String messages = null;
-			try {
-				if (serverVersion.toString().equals(clientVersion)) {
-					messages = getServerResponse(index, serverVersion);
-					logger.info("Get messages from history: " + messages);
-				} else {
-					messages = getServerResponse(0, serverVersion);
-					logger.info("Get messages from history: " + messages);
+		try {
+			if (token != null && !"".equals(token)) {
+				int index = getIndex(token);
+				logger.info("Index: " + index);
+				String messages = null;
+				if (serverVersion.toString().equals(clientVersion) && index == XMLStorage.getStorageSize()) {
+					response.sendError(HttpServletResponse.SC_NOT_MODIFIED);
 				}
-			} catch (ParserConfigurationException | SAXException | XPathExpressionException e) {
-				logger.error(e);
+				else {
+					if (serverVersion.toString().equals(clientVersion)) {
+						messages = getServerResponse(index, serverVersion);
+					} else {
+						messages = getServerResponse(0, serverVersion);
+					}
+				}
+				response.setContentType(ServletUtil.APPLICATION_JSON);
+				response.setCharacterEncoding("UTF-8");
+				PrintWriter out = response.getWriter();
+				out.print(messages);
+				out.flush();
+			} else {
+				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "'token' and 'version' parameters needed");
 			}
-			response.setContentType(APPLICATION_JSON);
-			response.setCharacterEncoding("UTF-8");
-			PrintWriter out = response.getWriter();
-			out.print(messages);
-			out.flush();
-		} else {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "'token' parameter needed");
-			logger.error("BAD_REQUEST: 'token' parameter needed");
+		}
+		catch (SAXException | ParserConfigurationException e) {
+			logger.error(e);
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+		} catch (XPathExpressionException e) {
+			e.printStackTrace();
 		}
 	}
 
