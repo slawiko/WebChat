@@ -197,6 +197,4 @@ public final class XMLStorage {
 		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 		return transformer;
 	}
-
-
 }
