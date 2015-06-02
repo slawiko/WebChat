@@ -1,20 +1,16 @@
 package practice.chat.util;
 
-import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
 import org.xml.sax.SAXException;
 
 import practice.chat.storage.XMLStorage;
-import practice.chat.model.Message;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPathExpressionException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.List;
 
 import static practice.chat.util.MessageUtil.getToken;
 
@@ -39,20 +35,10 @@ public final class ServletUtil {
 
 	public static String getServerResponse(int index, Integer version) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
 		JSONObject jsonObject = new JSONObject();
+		//List
 		jsonObject.put(MESSAGES, XMLStorage.getSubNodeList(index));
 		jsonObject.put(TOKEN, getToken(XMLStorage.getStorageSize()));
 		jsonObject.put(VERSION, version.toString());
 		return jsonObject.toJSONString();
-	}
-
-	public static void loadHistory(Logger logger) throws SAXException, IOException, ParserConfigurationException, TransformerException {
-		if (XMLStorage.isExist()) {
-			List<Message> messages = XMLStorage.getListMessages();
-			for(Message message : messages) {
-				logger.info("Read a message from history.xml: " + message.getDate() + " {" + message.getAuthor() + "} : {" + message.getText() + "}" );
-			}
-		} else {
-			XMLStorage.createStorage();
-		}
 	}
 }

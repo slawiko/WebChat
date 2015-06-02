@@ -2,6 +2,7 @@ package practice.chat.controller;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -20,6 +21,7 @@ import static practice.chat.util.MessageUtil.*;
 import static practice.chat.util.ServletUtil.*;
 
 import org.xml.sax.SAXException;
+import practice.chat.dao.MessageDao;
 import practice.chat.model.Message;
 import practice.chat.storage.XMLStorage;
 import practice.chat.util.ServletUtil;
@@ -30,12 +32,14 @@ public class ChatServlet extends HttpServlet {
 	private static final String VERSION = "version";
 	private Integer serverVersion;
 	private static final Logger logger = Logger.getLogger(ChatServlet.class);
+	private MessageDao messageDao;
 
 	@Override
 	public void init() throws ServletException {
 		try {
+			this.messageDao = new MessageDao();
 			versionUpdate();
-			loadHistory(logger);
+			loadHistory();
 		} catch (SAXException | IOException | ParserConfigurationException | TransformerException e) {
 			logger.error(e);
 		}
@@ -89,6 +93,7 @@ public class ChatServlet extends HttpServlet {
 			Message message = new Message(temp.getAuthor(), temp.getText());
 			logger.info("Post message: {" + message.getAuthor() + "} : {" + message.getText() + "}");
 			XMLStorage.addData(message);
+			messageDao.add(message);
 			response.setStatus(HttpServletResponse.SC_OK);
 		} catch (ParseException | ParserConfigurationException | SAXException | TransformerException e) {
 			logger.error(e);
@@ -105,6 +110,7 @@ public class ChatServlet extends HttpServlet {
 			Message message = jsonToMessage(json);
 			if (message != null) {
 				XMLStorage.updateData(message);
+				messageDao.update(message);
 				logger.info("Put message: {" + message.getId() + "} {" + message.getAuthor() + "} : {" + message.getText() + "}");
 				versionUpdate();
 				response.setStatus(HttpServletResponse.SC_OK);
@@ -140,5 +146,21 @@ public class ChatServlet extends HttpServlet {
 		} else {
 			serverVersion = 0;
 		}
+	}
+
+	private void loadHistory() throws SAXException, IOException, ParserConfigurationException, TransformerException {
+		/*if (XMLStorage.isExist()) {
+			List<Message> messages = XMLStorage.getListMessages();
+			for(Message message : messages) {
+				logger.info("Read a message from history.xml: " + message.getDate() + " {" + message.getAuthor() + "} : {" + message.getText() + "}" );
+			}
+		} else {
+			XMLStorage.createStorage();
+		}*/
+		if (!XMLStorage.isExist()) {
+			XMLStorage.createStorage();
+		}
+		List<Message> messages = messageDao.selectAll();
+		logger.info(messages);
 	}
 }
