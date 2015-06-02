@@ -18,20 +18,21 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
 
 import static practice.chat.util.MessageUtil.*;
-import static practice.chat.util.ServletUtil.*;
+//import static practice.chat.util.ServletUtil.*;
 
 import org.xml.sax.SAXException;
 import practice.chat.dao.MessageDao;
 import practice.chat.model.Message;
-import practice.chat.storage.XMLStorage;
+//import practice.chat.storage.XMLStorage;
 import practice.chat.util.ServletUtil;
 
 @WebServlet("/chat")
 public class ChatServlet extends HttpServlet {
 	private static final String TOKEN = "token";
 	private static final String VERSION = "version";
+	private static final String MESSAGES = "messages";
 	private Integer serverVersion;
-	private static final Logger logger = Logger.getLogger(ChatServlet.class);
+	private static Logger logger = Logger.getLogger(ChatServlet.class);
 	private MessageDao messageDao;
 
 	@Override
@@ -56,7 +57,7 @@ public class ChatServlet extends HttpServlet {
 				int index = getIndex(token);
 				logger.info("Index: " + index);
 				String messages = null;
-				if (serverVersion.toString().equals(clientVersion) && index == XMLStorage.getStorageSize()) {
+				if (serverVersion.toString().equals(clientVersion) && index == messageDao.selectAll().size()) {
 					response.sendError(HttpServletResponse.SC_NOT_MODIFIED);
 				}
 				else {
@@ -92,10 +93,10 @@ public class ChatServlet extends HttpServlet {
 			Message temp = jsonToMessage(json);
 			Message message = new Message(temp.getAuthor(), temp.getText());
 			logger.info("Post message: {" + message.getAuthor() + "} : {" + message.getText() + "}");
-			XMLStorage.addData(message);
+			//XMLStorage.addData(message);
 			messageDao.add(message);
 			response.setStatus(HttpServletResponse.SC_OK);
-		} catch (ParseException | ParserConfigurationException | SAXException | TransformerException e) {
+		} catch (ParseException e) {
 			logger.error(e);
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 		}
@@ -109,7 +110,7 @@ public class ChatServlet extends HttpServlet {
 			JSONObject json = stringToJson(data);
 			Message message = jsonToMessage(json);
 			if (message != null) {
-				XMLStorage.updateData(message);
+				//XMLStorage.updateData(message);
 				messageDao.update(message);
 				logger.info("Put message: {" + message.getId() + "} {" + message.getAuthor() + "} : {" + message.getText() + "}");
 				versionUpdate();
@@ -118,7 +119,7 @@ public class ChatServlet extends HttpServlet {
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Message does not exist");
 				logger.error("BAD_REQUEST: Message does not exist");
 			}
-		} catch (ParseException | SAXException | ParserConfigurationException | TransformerException | XPathExpressionException e) {
+		} catch (ParseException e) {
 			logger.error(e);
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 		}
@@ -131,9 +132,10 @@ public class ChatServlet extends HttpServlet {
 			JSONObject json = stringToJson(data);
 			Message message = jsonToMessage(json);
 			logger.info("Delete message: " + message.getDate() + " {" + message.getAuthor() + "} : {" + message.getText() + "}");
-			XMLStorage.removeData(message);
+			//XMLStorage.removeData(message);
+			messageDao.delete(message);
 			versionUpdate();
-		} catch (ParseException | ParserConfigurationException | SAXException | TransformerException | XPathExpressionException e) {
+		} catch (ParseException e) {
 			logger.error(e);
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 		}
@@ -157,10 +159,16 @@ public class ChatServlet extends HttpServlet {
 		} else {
 			XMLStorage.createStorage();
 		}*/
-		if (!XMLStorage.isExist()) {
-			XMLStorage.createStorage();
-		}
 		List<Message> messages = messageDao.selectAll();
 		logger.info(messages);
+	}
+
+	public String getServerResponse(int index, Integer version) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
+		List<Message> messages = messageDao.selectAll();
+		JSONObject jsonObject = new JSONObject();
+		jsonObject.put(MESSAGES, messages.subList(index, messages.size()));
+		jsonObject.put(TOKEN, getToken(messages.size()));
+		jsonObject.put(VERSION, version.toString());
+		return jsonObject.toJSONString();
 	}
 }

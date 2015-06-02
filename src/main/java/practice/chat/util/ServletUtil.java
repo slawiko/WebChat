@@ -3,6 +3,7 @@ package practice.chat.util;
 import org.json.simple.JSONObject;
 import org.xml.sax.SAXException;
 
+import practice.chat.model.Message;
 import practice.chat.storage.XMLStorage;
 
 import javax.servlet.http.HttpServletRequest;
@@ -11,6 +12,7 @@ import javax.xml.xpath.XPathExpressionException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.List;
 
 import static practice.chat.util.MessageUtil.getToken;
 
@@ -31,14 +33,5 @@ public final class ServletUtil {
 			sb.append(line);
 		}
 		return sb.toString();
-	}
-
-	public static String getServerResponse(int index, Integer version) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
-		JSONObject jsonObject = new JSONObject();
-		//List
-		jsonObject.put(MESSAGES, XMLStorage.getSubNodeList(index));
-		jsonObject.put(TOKEN, getToken(XMLStorage.getStorageSize()));
-		jsonObject.put(VERSION, version.toString());
-		return jsonObject.toJSONString();
 	}
 }
