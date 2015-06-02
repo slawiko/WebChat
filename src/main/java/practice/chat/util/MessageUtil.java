@@ -13,7 +13,7 @@ public final class MessageUtil {
 	public static final String AUTHOR = "author";
 	public static final String TEXT = "text";
 	public static final String DATE = "date";
-	public static final String DATE_FORMAT = "dd-MM-yyyy HH:mm";
+	public static final String DATE_FORMAT = "dd-MM-yyyy HH:mm:ss";
 
 	public static String getToken(int index) {
 		Integer number = index * 8 + 11;
