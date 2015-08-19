@@ -1,8 +1,12 @@
 package practice.chat.controller;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.List;
+import org.apache.log4j.Logger;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.ParseException;
+import org.xml.sax.SAXException;
+import practice.chat.dao.MessageDao;
+import practice.chat.model.Message;
+import practice.chat.util.ServletUtil;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -12,19 +16,14 @@ import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPathExpressionException;
-
-import org.apache.log4j.Logger;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.ParseException;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.List;
 
 import static practice.chat.util.MessageUtil.*;
-//import static practice.chat.util.ServletUtil.*;
 
-import org.xml.sax.SAXException;
-import practice.chat.dao.MessageDao;
-import practice.chat.model.Message;
+//import static practice.chat.util.ServletUtil.*;
 //import practice.chat.storage.XMLStorage;
-import practice.chat.util.ServletUtil;
 
 @WebServlet("/chat")
 public class ChatServlet extends HttpServlet {
@@ -59,8 +58,7 @@ public class ChatServlet extends HttpServlet {
 				String messages = null;
 				if (serverVersion.toString().equals(clientVersion) && index == messageDao.selectAll().size()) {
 					response.sendError(HttpServletResponse.SC_NOT_MODIFIED);
-				}
-				else {
+				} else {
 					if (serverVersion.toString().equals(clientVersion)) {
 						messages = getServerResponse(index, serverVersion);
 					} else {
@@ -75,8 +73,7 @@ public class ChatServlet extends HttpServlet {
 			} else {
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "'token' and 'version' parameters needed");
 			}
-		}
-		catch (SAXException | ParserConfigurationException e) {
+		} catch (SAXException | ParserConfigurationException e) {
 			logger.error(e);
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 		} catch (XPathExpressionException e) {
@@ -85,7 +82,7 @@ public class ChatServlet extends HttpServlet {
 	}
 
 	@Override
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws  ServletException, IOException {
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String data = ServletUtil.getMessageBody(request);
 		logger.info(data);
 		try {
@@ -103,7 +100,7 @@ public class ChatServlet extends HttpServlet {
 	}
 
 	@Override
-	protected void doPut(HttpServletRequest request, HttpServletResponse response) throws  ServletException, IOException {
+	protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String data = ServletUtil.getMessageBody(request);
 		logger.info(data);
 		try {
@@ -141,7 +138,7 @@ public class ChatServlet extends HttpServlet {
 		}
 	}
 
-	private void versionUpdate(){
+	private void versionUpdate() {
 		if (serverVersion != null) {
 			serverVersion++;
 			logger.info("Version changed: " + serverVersion);
